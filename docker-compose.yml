@@ -1,7 +1,9 @@
 version: '3'
 services:
   webhook:
-    build: ./webhook
+    build:
+      context: ./webhook
+      dockerfile: Dockerfile.web
     expose:
      - "8433"
     ports:
