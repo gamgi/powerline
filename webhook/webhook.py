@@ -1,7 +1,15 @@
 import logging
 import config
+# Telegram API
 from telegram.ext import Updater, CommandHandler
 import telegram.error
+# Redis Queue
+from rq import Queue
+from redis import Redis
+q = Queue(connection=Redis(host=config.REDIS_HOST, port=config.REDIS_PORT))
+from worker import handle_message
+result = q.enqueue(
+    handle_message, 123, "Hi!")
 
 # Logging
 logging.basicConfig(

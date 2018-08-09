@@ -14,3 +14,9 @@ services:
      - "PRODUCTION=0"
     #env_file:
     # - ./webhook/.env
+  redis:
+    image: "redis:alpine"
+    expose:
+     - "6379"
+    ports:
+     - "127.0.0.1:6379:6379"
