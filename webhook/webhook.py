@@ -15,8 +15,14 @@ logging.basicConfig(
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+from telegram import Update
+
 try:
-    q = Queue(connection=Redis(host=config.REDIS_HOST, port=config.REDIS_PORT))
+    q = Queue(
+        connection=Redis(
+            host=config.REDIS_HOST,
+            port=config.REDIS_PORT,
+            password=config.REDIS_PASSWORD))
 except redis_exceptions.ConnectionError:
     logging.error('Unable to connect to redis')
 
@@ -25,7 +31,7 @@ def start(bot, update):
     """Send a message when the command /start is issued."""
     update.message.reply_text('Hi!')
     result = q.enqueue(
-	'worker.handle_update', update)
+        'worker.handle_update', bot, update)
 
 
 def error(bot, update, error):

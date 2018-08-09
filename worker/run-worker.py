@@ -1,6 +1,5 @@
 # From http://python-rq.org/patterns/
 import os
-from urllib.parse import urlparse
 from redis import Redis
 from redis import exceptions as redis_exceptions
 from rq import Queue, Connection
@@ -14,7 +13,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-logger = logging.getLogger("worker.internal")
+logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 listen = ['high', 'default', 'low']
@@ -26,7 +25,16 @@ if not redis_url:
 import worker
 
 try:
-    conn = Redis(host=config.REDIS_HOST, port=config.REDIS_PORT, db=0)
+    logging.info(
+        'attempting to connect to {0} on port {1}'.format(
+            config.REDIS_HOST,
+            config.REDIS_PORT))
+    #logging.info('and the orignal is {}'.format(config.REDIS_URL))
+    conn = Redis(
+        host=config.REDIS_HOST,
+        port=config.REDIS_PORT,
+        db=0,
+        password=config.REDIS_PASSWORD)
     if __name__ == '__main__':
         with Connection(conn):
             worker = Worker(map(Queue, listen))
