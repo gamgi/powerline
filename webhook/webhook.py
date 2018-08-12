@@ -1,7 +1,9 @@
 import logging
 import config
+from pprint import pprint, pformat
 # Telegram API
 from telegram.ext import Updater, CommandHandler
+from telegram.ext import MessageHandler, Filters
 import telegram.error
 # Redis Queue
 from rq import Queue
@@ -29,10 +31,16 @@ except redis_exceptions.ConnectionError:
 
 def start(bot, update):
     """Send a message when the command /start is issued."""
+    logging.info(pformat(bot))
+    logging.info(pformat(update))
     update.message.reply_text('Hi!')
     result = q.enqueue(
         'worker.handle_update', bot, update)
 
+
+def message(bot, update):
+    logging.info(pformat(bot))
+    logging.info(pformat(update))
 
 def error(bot, update, error):
     """Log Errors caused by Updates."""
@@ -57,6 +65,7 @@ try:
     # Connect the commands
     dispatcher = updater.dispatcher
     dispatcher.add_handler(CommandHandler("start", start))
+    dispatcher.add_handler(MessageHandler(Filters.text, message))
     dispatcher.add_error_handler(error)
 
     updater.idle()
