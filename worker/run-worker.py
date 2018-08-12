@@ -4,6 +4,7 @@ from redis import Redis
 from redis import exceptions as redis_exceptions
 from rq import Queue, Connection
 from rq.worker import HerokuWorker as Worker
+from sqlalchemy import create_engine
 import config
 
 from time import sleep
@@ -35,10 +36,16 @@ try:
         port=config.REDIS_PORT,
         db=0,
         password=config.REDIS_PASSWORD)
+
+    db = create_engine(config.SQLALCHEMY_DATABASE_URI)
+
     if __name__ == '__main__':
+        # Bind worker to db and redis
+        worker.bind(db, conn)
+
         with Connection(conn):
-            worker = Worker(map(Queue, listen))
-            worker.work()
+            rq_worker = Worker(map(Queue, listen))
+            rq_worker.work()
 except redis_exceptions.ConnectionError:
     logging.error('Unable to connect to redis')
     sleep(10)
