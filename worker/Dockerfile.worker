@@ -1,11 +1,11 @@
-FROM python:3.6-alpine
+FROM python:3.6
 ADD . /worker
 WORKDIR /worker
 
 RUN pip install --no-cache-dir -q -r requirements.txt
 
 # Run the image as a non-root user
-RUN adduser -D webuser
+RUN useradd --create-home --shell /bin/bash webuser
 USER webuser
 
 CMD ["python", "run-worker.py"]
