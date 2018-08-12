@@ -1,6 +1,8 @@
 # Telegram API
 from telegram.ext import Updater, CommandHandler
 import telegram.error
+# State machine
+import state
 #from telegram import Bot
 import config
 # Database
