@@ -2,6 +2,8 @@ FROM python:3.6-alpine
 ADD . /webhook
 WORKDIR /webhook
 
+ENV PYTHONUNBUFFERED 1
+
 RUN pip install --no-cache-dir -q -r requirements.txt
 
 # Run the image as a non-root user
