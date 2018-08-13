@@ -1,6 +1,5 @@
 import logging
 import config
-from pprint import pprint, pformat
 # Telegram API
 from telegram.ext import Updater, CommandHandler
 from telegram.ext import MessageHandler, Filters
@@ -31,16 +30,13 @@ except redis_exceptions.ConnectionError:
 
 def start(bot, update):
     """Send a message when the command /start is issued."""
-    logging.info(pformat(bot))
-    logging.info(pformat(update))
     update.message.reply_text('Hi!')
     result = q.enqueue(
         'worker.handle_update', bot, update)
 
 
 def message(bot, update):
-    logging.info(pformat(bot))
-    logging.info(pformat(update))
+    pass
 
 def error(bot, update, error):
     """Log Errors caused by Updates."""
