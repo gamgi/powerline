@@ -9,6 +9,8 @@ import config
 
 from time import sleep
 
+from telegram import Bot
+
 import logging
 logging.basicConfig(
     level=logging.INFO,
@@ -39,9 +41,13 @@ try:
 
     db = create_engine(config.SQLALCHEMY_DATABASE_URI)
 
+    # Note: no additional config required due to webhook.py
+    # sending required values to telegram
+    bot = Bot(config.TELEGRAM_TOKEN)
+
     if __name__ == '__main__':
         # Bind worker to db and redis
-        worker.bind(db, conn)
+        worker.bind(bot, db, conn)
 
         with Connection(conn):
             rq_worker = Worker(map(Queue, listen))

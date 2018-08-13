@@ -1,5 +1,4 @@
 # Telegram API
-from telegram.ext import Updater, CommandHandler
 import telegram.error
 # State machine
 import state
@@ -18,19 +17,19 @@ logger = logging.getLogger("worker.internal")
 logger.setLevel(logging.INFO)
 
 
-def handle_update(bot, update):
+def handle_update(update):
     logging.info("Handling job")
     bot.send_message(chat_id=update.message.chat_id, text="Hi there!")
     return True
 
 
+bot = None
 db = None
 redis = None
 
 
-def bind(new_db, new_redis):
-    global db, redis
+def bind(new_bot, new_db, new_redis):
+    global bot, db, redis
+    bot = new_bot
     db = new_db
     redis = new_redis
-
-#bot = Bot(config.TELEGRAM_TOKEN)

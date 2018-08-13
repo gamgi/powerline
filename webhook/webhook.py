@@ -32,11 +32,12 @@ def start(bot, update):
     """Send a message when the command /start is issued."""
     update.message.reply_text('Hi!')
     result = q.enqueue(
-        'worker.handle_update', bot, update)
+        'worker.handle_update', update)
 
 
 def message(bot, update):
     pass
+
 
 def error(bot, update, error):
     """Log Errors caused by Updates."""

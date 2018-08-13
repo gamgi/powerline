@@ -34,7 +34,7 @@ class TestRegisterFlow(unittest.TestCase):
         self.worker.bind(self.db, self.redis)
 
     def tearDown(self):
-        self.postgresql.stop()
+        self.db.stop()
 
     def test_dummy(self):
         result = self.worker.handle_update(
