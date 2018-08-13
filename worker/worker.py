@@ -17,6 +17,7 @@ logger = logging.getLogger("worker.internal")
 #logger = logging.getLogger('rq.worker')
 logger.setLevel(logging.INFO)
 
+
 def handle_update(bot, update):
     logging.info("Handling job")
     bot.send_message(chat_id=update.message.chat_id, text="Hi there!")
