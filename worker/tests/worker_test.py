@@ -1,6 +1,5 @@
 import sys
 import os
-
 from telegram import Message, Update
 
 # Testing
@@ -67,7 +66,7 @@ class TestCommands(unittest.TestCase):
         self.session.close()
         self.db.stop()
 
-    def command_start(self):
+    def test_command_start(self):
         update = Update.de_json(
             md.req_command_start_01,
             self.bot)
