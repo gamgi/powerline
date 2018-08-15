@@ -31,8 +31,13 @@ except redis_exceptions.ConnectionError:
 def start(bot, update):
     """Send a message when the command /start is issued."""
     update.message.reply_text('Hi!')
+    try:
+        user_id = update.message.from_user.id
+    except AttributeError:
+        # No from_user means message is from a channel
+        return
     result = q.enqueue(
-        'worker.handle_update', update)
+        'worker.command_start', user_id, update)
 
 
 def message(bot, update):
