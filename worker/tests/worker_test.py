@@ -35,12 +35,21 @@ def get_user_id_from_update(update):
         return ''
 
 
+def get_command_and_args_from_update(update):
+    try:
+        command, unused, args_joined = update['message']['text'].partition(" ")
+        return command.replace("/", "", 1), args_joined.split(" ")
+    except BaseException as err:
+        logging.info(err)
+        return None
+
+
 # Mock data
 from mock_data import data as md
 import models
 
 # Test target
-import worker
+from worker import Worker
 
 
 def tearDownModule(self):
@@ -60,7 +69,8 @@ class TestCommands(unittest.TestCase):
         # Bind to worker
         self.db_engine = create_engine(self.db.url())
         self.session = sessionmaker(bind=self.db_engine)()
-        worker.bind(self.bot, self.db_engine, self.redis)
+        self.worker = Worker()
+        self.worker.bind(self.bot, self.db_engine, self.redis)
 
     def tearDown(self):
         self.session.close()
@@ -71,8 +81,8 @@ class TestCommands(unittest.TestCase):
             md.req_command_start_01,
             self.bot)
         user_id = get_user_id_from_update(update)
-        worker.command_start(user_id, update)
-
+        #self.worker.state.user.bind(self.bot, user_id, None)
+        self.worker.command_start(user_id, update)
         # Asserts
         self.bot.send_message.assert_called()
         args, kwargs = self.bot.send_message.call_args
@@ -81,3 +91,16 @@ class TestCommands(unittest.TestCase):
             md.req_command_start_01['message']['chat']['id'])
         self.assertEqual(self.session.query(models.User).count(), 1)
         # TODO assert state
+
+    def test_command_dummy(self):
+        self.worker.state.set_state('unregistered')
+        update = Update.de_json(
+            md.req_command_dummy_01,
+            self.bot)
+        user_id = get_user_id_from_update(update)
+        command, args = get_command_and_args_from_update(update)
+        #self.worker.state.user.bind(self.bot, user_id, None)
+        self.worker.handle_command(user_id, update, command, args)
+
+        # Asserts
+        self.assertEqual(self.worker.state.state, 'dummy_state')

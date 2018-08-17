@@ -1,0 +1,28 @@
+{
+  "update_id": 123000001,
+  "message": {
+    "message_id": 2,
+    "from": {
+      "id": 123,
+      "is_bot": false,
+      "first_name": "Gary",
+      "username": "gary56",
+      "language_code": "en-GB"
+    },
+    "chat": {
+      "id": 123,
+      "first_name": "Gary",
+      "username": "gary56",
+      "type": "private"
+    },
+    "date": 1534398298,
+    "text": "/dummy one two three",
+    "entities": [
+      {
+        "offset": 0,
+        "length": 6,
+        "type": "bot_command"
+      }
+    ]
+  }
+}
