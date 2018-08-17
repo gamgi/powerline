@@ -24,7 +24,7 @@ listen = ['high', 'default', 'low']
 redis_url = config.REDIS_URL
 if not redis_url:
     raise RuntimeError('Set up Redis first.')
-
+import state
 import worker
 
 try:
