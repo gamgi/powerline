@@ -1,13 +1,15 @@
 import logging
 import config
 # Telegram API
-from telegram.ext import Updater, CommandHandler
+from telegram.ext import Updater, CommandHandler, Handler
 from telegram.ext import MessageHandler, Filters
 import telegram.error
 # Redis Queue
 from rq import Queue
 from redis import Redis
 from redis import exceptions as redis_exceptions
+
+from telegram import Update
 
 # Logging
 logging.basicConfig(
@@ -16,7 +18,6 @@ logging.basicConfig(
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-from telegram import Update
 
 try:
     q = Queue(
@@ -38,6 +39,25 @@ def start(bot, update):
         return
     result = q.enqueue(
         'worker.command_start', user_id, update)
+
+
+def get_command_from_update(update):
+    try:
+        return update.message.text.partition(" ")[0]
+    except:
+        return None
+
+def any_command(bot, update, args):
+    command = get_command_from_update(update)
+    logging.info('command '+command+' with args '+args)
+    update.message.reply_text('Hi!')
+    try:
+        user_id = update.message.from_user.id
+    except AttributeError:
+        # No from_user means message is from a channel
+        return
+    result = q.enqueue(
+        'worker.handle_command', user_id, update, command, args)
 
 
 def message(bot, update):
@@ -66,7 +86,11 @@ try:
 
     # Connect the commands
     dispatcher = updater.dispatcher
+    #dispatcher.add_handler(CommandHandler("start", start))
+    #for command in commands:
+    #    dispatcher.add_handler(CommandHandler(command, any_command, pass_args=True))
     dispatcher.add_handler(CommandHandler("start", start))
+    dispatcher.add_handler(Handler(any_command, start))
     dispatcher.add_handler(MessageHandler(Filters.text, message))
     dispatcher.add_error_handler(error)
 
