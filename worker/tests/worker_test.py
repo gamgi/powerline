@@ -45,11 +45,13 @@ def get_command_and_args_from_update(update):
 
 
 # Mock data
-from mock_data import data as md
+from mock_data import MockData
 import models
 
 # Test target
 from worker import Worker
+
+md = MockData()
 
 
 def tearDownModule(self):
@@ -77,9 +79,10 @@ class TestCommands(unittest.TestCase):
         self.db.stop()
 
     def test_command_start(self):
-        update = Update.de_json(
-            md.req_command_start_01,
-            self.bot)
+        # update = Update.de_json(
+        #    md.req_command_start_01,
+        #    self.bot)
+        update = md.update_for_command(self.bot, "start")
         user_id = get_user_id_from_update(update)
         #self.worker.state.user.bind(self.bot, user_id, None)
         self.worker.command_start(user_id, update)
@@ -88,15 +91,14 @@ class TestCommands(unittest.TestCase):
         args, kwargs = self.bot.send_message.call_args
         self.assertEqual(
             kwargs['chat_id'],
-            md.req_command_start_01['message']['chat']['id'])
+            md.file('req_command_start_01')['message']['chat']['id'])
         self.assertEqual(self.session.query(models.User).count(), 1)
         # TODO assert state
 
     def test_command_dummy(self):
         self.worker.state.set_state('unregistered')
-        update = Update.de_json(
-            md.req_command_dummy_01,
-            self.bot)
+        update = md.update_for_command(
+            self.bot, "dummy", "one", "two", "three")
         user_id = get_user_id_from_update(update)
         command, args = get_command_and_args_from_update(update)
         #self.worker.state.user.bind(self.bot, user_id, None)
@@ -104,3 +106,12 @@ class TestCommands(unittest.TestCase):
 
         # Asserts
         self.assertEqual(self.worker.state.state, 'dummy_state')
+
+    def test_register_flow(self):
+        self.worker.state.set_state('unregistered')
+        update = md.update_from_file(self.bot, 'req_command_start_01')
+        user_id = get_user_id_from_update(update)
+        self.worker.handle_command(user_id, update, 'start', [])
+
+        # Assert
+        self.assertEqual(self.worker.state.state, 'register_1')
