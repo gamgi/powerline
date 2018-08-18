@@ -4,6 +4,7 @@ import config
 from telegram.ext import Updater, CommandHandler, Handler
 from telegram.ext import MessageHandler, Filters
 import telegram.error
+from any_command_handler import AnyCommandHandler
 # Redis Queue
 from rq import Queue
 from redis import Redis
@@ -28,6 +29,24 @@ try:
 except redis_exceptions.ConnectionError:
     logging.error('Unable to connect to redis')
 
+# Helpers
+
+
+def get_command_from_update(update):
+    try:
+        return update.message.text.partition(" ")[0]
+    except BaseException:
+        return None
+
+
+def get_message_from_update(update):
+    try:
+        return update.message.text
+    except BaseException:
+        return None
+
+# Handlers
+
 
 def start(bot, update):
     """Send a message when the command /start is issued."""
@@ -41,15 +60,9 @@ def start(bot, update):
         'worker.command_start', user_id, update)
 
 
-def get_command_from_update(update):
-    try:
-        return update.message.text.partition(" ")[0]
-    except:
-        return None
-
 def any_command(bot, update, args):
     command = get_command_from_update(update)
-    logging.info('command '+command+' with args '+args)
+    logging.info('command ' + command + ' with args ' + args)
     update.message.reply_text('Hi!')
     try:
         user_id = update.message.from_user.id
@@ -61,7 +74,15 @@ def any_command(bot, update, args):
 
 
 def message(bot, update):
-    pass
+    message = get_message_from_update(update)
+    logging.info("message {}".format(message))
+    try:
+        user_id = update.message.from_user.id
+    except AttributeError:
+        # No from_user means message is from a channel
+        return
+    result = q.enqueue(
+        'worker.handle_message', user_id, update, message)
 
 
 def error(bot, update, error):
@@ -87,10 +108,10 @@ try:
     # Connect the commands
     dispatcher = updater.dispatcher
     #dispatcher.add_handler(CommandHandler("start", start))
-    #for command in commands:
+    # for command in commands:
     #    dispatcher.add_handler(CommandHandler(command, any_command, pass_args=True))
     dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(Handler(any_command, start))
+    dispatcher.add_handler(AnyCommandHandler(any_command))
     dispatcher.add_handler(MessageHandler(Filters.text, message))
     dispatcher.add_error_handler(error)
 
