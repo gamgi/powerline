@@ -26,7 +26,7 @@ class Worker:
         self.db = db_engine
         self.redis = redis
         self.Session = sessionmaker(bind=self.db)
-        self.state = State()
+        self.state = State(self.bot)
 
     def command_start(self, user_id, update):
         logging.debug("command_start ({})".format(user_id))
@@ -60,13 +60,29 @@ class Worker:
             "command {} with args {} ({})".format(
                 command, args, user_id))
         try:
-            self.state.trigger(command)
+            self.state.trigger(command, user_id=user_id, chat_id=chat_id)
             logging.info('new state is {}'.format(self.state.state))
             # success, make menu of possible commands via
             # m.get_triggers(self.state.state)
         except Exception as err:
             logging.error(err)
 
+    def handle_message(self, user_id, update, message):
+        chat_id = update.message.chat_id
+        # Check is registered
+        # Check state nad set self.state.set_state('unregistered')
+
+        logging.info(
+            "message {} ({})".format(
+                message, user_id))
+        try:
+            pass
+            # self.state.trigger(command)
+            #logging.info('new state is {}'.format(self.state.state))
+            # success, make menu of possible commands via
+            # m.get_triggers(self.state.state)
+        except Exception as err:
+            logging.error(err)
 
 # Hacky-solution for production. Python-rq does not allow queueing instances, but
 # instantiating the worker in the module is allowed.
@@ -82,6 +98,10 @@ def command_start(*args):
 
 def handle_command(*args):
     worker.handle_command(*args)
+
+
+def handle_message(*args):
+    worker.handle_message(*args)
 
 
 def bind(*args):

@@ -10,14 +10,13 @@ logging.getLogger('transitions').setLevel(logging.INFO)
 class State(Machine):
     # self.is_waiting_message=True
     # def save_to_db
-    def on_enter_register_1(self):
-        if not self.bot:
-            raise Exception('State user not bound')
-        self.bot.send_message(chat_id=self.chat_id,
+    def on_enter_register_1(self, event):
+        chat_id = event.kwargs.get('chat_id')
+        self.bot.send_message(chat_id=chat_id,
                               text="Najs")
 
-    def __init__(self):
-
+    def __init__(self, bot):
+        self.bot = bot
         states = [
             'unregistered',
             'register_1',
@@ -27,7 +26,7 @@ class State(Machine):
             'dummy_state']
 
         commands = [
-            {'trigger': 'next', 'source': 'unregistered', 'dest': 'register_1'},
+            {'trigger': 'start', 'source': 'unregistered', 'dest': 'register_1'},
             {'trigger': 'dummy', 'source': '*', 'dest': 'dummy_state'}
         ]
         transitions = [
@@ -47,4 +46,5 @@ class State(Machine):
             transitions=transitions +
             # after_state_change --> save to db
             commands,
+            send_event=True,
             initial='unregistered')
