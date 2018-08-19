@@ -24,10 +24,21 @@ class State(Machine):
             'idle',
             'dummy_state']
 
-        commands = [
-            {'trigger': 'dummy', 'source': '*', 'dest': 'dummy_state'},
-            {'trigger': 'start', 'source': 'unregistered', 'dest': 'register_1'},
-        ]
+        commands = [{'trigger': 'dummy',
+                     'source': '*',
+                     'dest': 'dummy_state'},
+                    {'trigger': 'start',
+                     'source': 'unregistered',
+                     'dest': 'register_1'},
+                    {'trigger': 'message',
+                     'source': 'register_1',
+                     'dest': 'register_2',
+                     'conditions': 'is_proper_title'},
+                    {'trigger': 'message',
+                     'source': 'register_2',
+                     'dest': 'register_3',
+                     'conditions': 'is_proper_age'},
+                    ]
         transitions = [
             # lump.heat(answer=74)
             # {'trigger': 'check_a', 'source': 'unregistered', 'dest': None, conditions=is_proper_x},
@@ -58,6 +69,18 @@ class State(Machine):
             text=enums.MESSAGES[self.language].REGISTER_1.value,
             reply_markup=enums.KEYBOARDS.REGISTER_1_KEYBOARD.value)
     """
+
+    def is_proper_title(self, event):
+        message = event.kwargs.get('message').lower()
+        if message not in ['mr', 'mrs']:
+            return False
+        return True
+
+    def is_proper_age(self, event):
+        message = event.kwargs.get('message').lower()
+        if message not in range(1, 5) + ['n']:
+            return False
+        return True
 
     def default_on_enter(self, event):
         chat_id = event.kwargs.get('chat_id')

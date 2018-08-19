@@ -151,3 +151,11 @@ class TestRegisterFlow:
         # Assert
         bot.send_message.assert_called()
         assert worker.state.state == 'register_1'
+
+        update = md.update_for_message(
+            bot, "mr")
+        worker.handle_message(user_id, update, "mr")
+
+        # Assert
+        bot.send_message.assert_called()
+        assert worker.state.state == 'register_2'
