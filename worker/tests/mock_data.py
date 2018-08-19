@@ -58,3 +58,27 @@ class MockData:
             mock_data,
             bot)
         return update
+
+    def update_for_message(
+            self,
+            bot,
+            message,
+            user_id=None,
+            chat_id=None):
+        """Creates a telegram.Update instance"""
+
+        mock_data = self.data['req_template_message_01']
+        # set command
+        mock_data['message']['text'] = message
+        # set chat_id
+        if (chat_id):
+            mock_data['message']['chat']['id'] = chat_id
+
+        # set user_id
+        if (user_id):
+            mock_data['message']['from']['id'] = user_id
+
+        update = Update.de_json(
+            mock_data,
+            bot)
+        return update
