@@ -5,6 +5,7 @@ from redis import exceptions as redis_exceptions
 from rq import Queue, Connection
 from rq.worker import HerokuWorker as Worker
 from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 import config
 
 from time import sleep
@@ -33,13 +34,14 @@ try:
             config.REDIS_HOST,
             config.REDIS_PORT))
     #logging.info('and the orignal is {}'.format(config.REDIS_URL))
-    conn = Redis(
+    redis = Redis(
         host=config.REDIS_HOST,
         port=config.REDIS_PORT,
         db=0,
         password=config.REDIS_PASSWORD)
 
     db = create_engine(config.SQLALCHEMY_DATABASE_URI)
+    Session = sessionmaker(bind=db)
 
     # Note: no additional config required due to webhook.py
     # sending required values to telegram
@@ -47,9 +49,9 @@ try:
 
     if __name__ == '__main__':
         # Bind worker to db and redis
-        worker.bind(bot, db, conn)
+        worker.bind(bot, Session, redis)
 
-        with Connection(conn):
+        with Connection(redis):
             rq_worker = Worker(map(Queue, listen))
             rq_worker.work()
 except redis_exceptions.ConnectionError:
