@@ -3,7 +3,7 @@ import os
 from telegram import Message, Update
 
 # Testing
-import unittest
+import pytest
 from unittest.mock import MagicMock
 import testing.postgresql
 
@@ -18,7 +18,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir))
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import create_database
+from create_database import create_database
 # Enable following line to echo database queries
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
@@ -59,59 +59,86 @@ def tearDownModule(self):
     Postgresql.clear_cache()
 
 
-class TestCommands(unittest.TestCase):
-    def setUp(self):
-        self.db = Postgresql()
-        self.redis = None
-        self.bot = MagicMock()
+@pytest.fixture(scope="module")
+def db_engine():
+    db = Postgresql()
+    create_database(db.url())
+    db_engine = create_engine(db.url())
+    yield db_engine
+    db.stop()
 
-        # Create db schema
-        create_database.create_database(self.db.url())
 
-        # Bind to worker
-        self.db_engine = create_engine(self.db.url())
-        self.session = sessionmaker(bind=self.db_engine)()
-        self.worker = Worker()
-        self.worker.bind(self.bot, self.db_engine, self.redis)
+@pytest.fixture(scope="module")
+def redis():
+    return None
 
-    def tearDown(self):
-        self.session.close()
-        self.db.stop()
 
-    def test_command_start(self):
-        # update = Update.de_json(
-        #    md.req_command_start_01,
-        #    self.bot)
-        update = md.update_for_command(self.bot, "start")
+@pytest.fixture(scope="function")
+def bot():
+    return MagicMock()
+
+
+@pytest.fixture(scope="function")
+def Session(db_engine):
+    connection = db_engine.connect()
+
+    # begin a non-ORM transaction
+    #trans = connection.begin()
+
+    Session = sessionmaker(bind=connection)
+
+    yield Session
+    #trans.rollback()
+
+    # return connection to the Engine
+    connection.close()
+
+
+@pytest.fixture(scope="function")
+def inspect_session(Session):
+    """For making database queries in test assertion"""
+    inspect_session = Session()
+    yield inspect_session
+    inspect_session.close()
+
+
+@pytest.fixture(scope="function")
+def worker(bot, Session, redis):
+    worker = Worker()
+    worker.bind(bot, Session, redis)
+    yield worker
+
+
+class TestCommands:
+    def test_command_start(self, Session, inspect_session, worker, bot):
+        update = md.update_for_command(bot, "start")
         user_id = get_user_id_from_update(update)
-        #self.worker.state.user.bind(self.bot, user_id, None)
-        self.worker.command_start(user_id, update)
+        worker.command_start(user_id, update)
+
         # Asserts
-        self.bot.send_message.assert_called()
-        args, kwargs = self.bot.send_message.call_args
-        self.assertEqual(
-            kwargs['chat_id'],
-            md.file('req_command_start_01')['message']['chat']['id'])
-        self.assertEqual(self.session.query(models.User).count(), 1)
+        bot.send_message.assert_called()
+        args, kwargs = bot.send_message.call_args
+        assert kwargs['chat_id'] == md.file('req_command_start_01')[
+            'message']['chat']['id']
+        assert inspect_session.query(models.User).count() == 1
         # TODO assert state
 
-    def test_command_dummy(self):
-        self.worker.state.set_state('unregistered')
+    def test_command_dummy(self, worker, bot):
+        worker.state.set_state('unregistered')
         update = md.update_for_command(
-            self.bot, "dummy", "one", "two", "three")
+            bot, "dummy", "one", "two", "three")
         user_id = get_user_id_from_update(update)
         command, args = get_command_and_args_from_update(update)
-        #self.worker.state.user.bind(self.bot, user_id, None)
-        self.worker.handle_command(user_id, update, command, args)
+        worker.handle_command(user_id, update, command, args)
 
         # Asserts
-        self.assertEqual(self.worker.state.state, 'dummy_state')
+        assert worker.state.state == 'dummy_state'
 
-    def test_register_flow(self):
-        self.worker.state.set_state('unregistered')
-        update = md.update_from_file(self.bot, 'req_command_start_01')
+    def test_register_flow(self, worker):
+        worker.state.set_state('unregistered')
+        update = md.update_from_file(bot, 'req_command_start_01')
         user_id = get_user_id_from_update(update)
-        self.worker.handle_command(user_id, update, 'start', [])
+        worker.handle_command(user_id, update, 'start', [])
 
         # Assert
-        self.assertEqual(self.worker.state.state, 'register_1')
+        assert worker.state.state == 'register_1'

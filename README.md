@@ -17,5 +17,8 @@ See [Heroku:Docker Deploys](https://devcenter.heroku.com/articles/container-regi
 ## Tunneling data
 Using ngrok `./ngrok http 8433` and put the domain in `.env` files where required.
 
+# Testing
+Tests use [pytest](https://docs.pytest.org/en/latest/contents.html).
+
 ## Running tests
 Ensure in that you have activated the virtual environment and installed the packages. Then within a subfolder (eg. `worker/`) run `pytest`.

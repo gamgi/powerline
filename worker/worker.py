@@ -21,11 +21,10 @@ logger.setLevel(logging.INFO)
 
 
 class Worker:
-    def bind(self, bot, db_engine, redis):
+    def bind(self, bot, Session, redis):
         self.bot = bot
-        self.db = db_engine
         self.redis = redis
-        self.Session = sessionmaker(bind=self.db)
+        self.Session = Session
         self.state = State(self.bot)
 
     def command_start(self, user_id, update):
