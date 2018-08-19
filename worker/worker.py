@@ -27,11 +27,12 @@ class Worker:
         self.Session = Session
         self.state = State(self.bot)
 
-    def command_start(self, user_id, update):
+    def handle_command_start(self, user_id, update):
         logging.debug("command_start ({})".format(user_id))
-        self.bot.send_message(
-            chat_id=update.message.chat_id,
-            text=enums.MESSAGES['EN'].START_HELLO_MESSAGE.value)
+        chat_id = update.message.chat_id
+        # self.bot.send_message(
+        #    chat_id=update.message.chat_id,
+        #    text=enums.MESSAGES['EN'].START_HELLO_MESSAGE.value)
         # Save user to DB if new
         try:
             session = self.Session()
@@ -49,10 +50,11 @@ class Worker:
             session.close()
         except OperationalError:
             logging.error("Unable to connect to database")
-        # state.user.trigger("next")
+        self.state.trigger("start", user_id=user_id, chat_id=chat_id)
 
     def handle_command(self, user_id, update, command, args):
         chat_id = update.message.chat_id
+        logging.info('message from chat_id {}'.format(chat_id))
         # Check is registered
         # Check state nad set self.state.set_state('unregistered')
         logging.info(
@@ -91,8 +93,8 @@ class Worker:
 worker = Worker()
 
 
-def command_start(*args):
-    worker.command_start(*args)
+def handle_command_start(*args):
+    worker.handle_command_start(*args)
 
 
 def handle_command(*args):

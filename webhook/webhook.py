@@ -50,6 +50,7 @@ def get_message_from_update(update):
 
 def start(bot, update):
     """Send a message when the command /start is issued."""
+    logging.info('start')
     update.message.reply_text('Hi!')
     try:
         user_id = update.message.from_user.id
@@ -57,7 +58,7 @@ def start(bot, update):
         # No from_user means message is from a channel
         return
     result = q.enqueue(
-        'worker.command_start', user_id, update)
+        'worker.handle_command_start', user_id, update)
 
 
 def any_command(bot, update, args):

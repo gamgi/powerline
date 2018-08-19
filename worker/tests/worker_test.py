@@ -110,11 +110,11 @@ def worker(bot, Session, redis):
 
 
 class TestCommands:
-    def test_command_start(self, Session, inspect_session, worker, bot):
+    def test_handle_command_start(self, Session, inspect_session, worker, bot):
         user_id = chat_id = 123
         update = md.update_for_command(
             bot, "start", chat_id=chat_id, user_id=user_id)
-        worker.command_start(user_id, update)
+        worker.handle_command_start(user_id, update)
 
         # Asserts
         bot.send_message.assert_called()
@@ -142,11 +142,12 @@ class TestCommands:
 
 
 class TestRegisterFlow:
-    def test_register_flow(self, worker):
+    def test_register_flow(self, worker, bot):
         worker.state.set_state('unregistered')
         update = md.update_from_file(bot, 'req_command_start_01')
         user_id = get_user_id_from_update(update)
         worker.handle_command(user_id, update, 'start', [])
 
         # Assert
+        bot.send_message.assert_called()
         assert worker.state.state == 'register_1'
