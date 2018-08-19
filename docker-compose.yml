@@ -26,5 +26,15 @@ services:
       dockerfile: Dockerfile.worker
     volumes:
      - ./worker:/worker
+    environment:
+     - DATABASE_URL=postgres://postgres:@postgres
     depends_on:
       - redis
+      - postgres
+    command: bash -c "python create_database.py && python run-worker.py"
+  postgres:
+    image: "postgres:10-alpine"
+    expose:
+     - "5432"
+    environment:
+     - "POSTGRES_PASSWORD="

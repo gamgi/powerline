@@ -13,11 +13,13 @@ REDIS_HOST = url.hostname
 REDIS_PORT = url.port
 REDIS_PASSWORD = url.password
 
+# Note: heroku sets DATABASE_URl, testing.postgresql sets SQLALCHEMY_DATABASE_URI
+# Docker config is set to modify DATABASE_URL
+SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL") or os.getenv(
+    "SQLALCHEMY_DATABASE_URI",
+    "postgresql://localhost:5432")
 # From local env
 PRODUCTION = int(os.getenv("PRODUCTION", 0))
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_PORT = int(os.getenv("TELEGRAM_PORT") or 8443)
 TELEGRAM_DOMAIN = os.getenv("TELEGRAM_DOMAIN")
-SQLALCHEMY_DATABASE_URI = os.getenv(
-    "SQLALCHEMY_DATABASE_URI",
-    "postgresql://localhost:5432")
