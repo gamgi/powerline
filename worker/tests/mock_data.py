@@ -33,15 +33,28 @@ class MockData:
             bot)
         return update
 
-    def update_for_command(self, bot, command, *args):
+    def update_for_command(
+            self,
+            bot,
+            command,
+            args="",
+            user_id=None,
+            chat_id=None):
         """Creates a telegram.Update instance"""
 
         mock_data = self.data['req_template_command_01']
-        mock_data['message']['text'] = "/{} {}".format(command, " ".join(args))
+        # set command
+        mock_data['message']['text'] = "/{} {}".format(command, args)
         mock_data['message']['entities'][0]['length'] = len(command) + 1
+        # set chat_id
+        if (chat_id):
+            mock_data['message']['chat']['id'] = chat_id
+
+        # set user_id
+        if (user_id):
+            mock_data['message']['from']['id'] = user_id
+
         update = Update.de_json(
             mock_data,
             bot)
         return update
-
-#data = MockData()
