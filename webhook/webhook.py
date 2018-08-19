@@ -112,6 +112,7 @@ try:
     # for command in commands:
     #    dispatcher.add_handler(CommandHandler(command, any_command, pass_args=True))
     dispatcher.add_handler(CommandHandler("start", start))
+    # Possibly replace with dispatcher.add_handler(MessageHandler(Filters.command, defaultCommand))
     dispatcher.add_handler(AnyCommandHandler(any_command))
     dispatcher.add_handler(MessageHandler(Filters.text, message))
     dispatcher.add_error_handler(error)
