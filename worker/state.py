@@ -78,20 +78,19 @@ class State(Machine):
 
     def is_proper_age(self, event):
         message = event.kwargs.get('message').lower()
-        if message not in range(1, 5) + ['n']:
+        if message not in list(range(1, 5)) + ['n', 'phuksi', 'mursu']:
             return False
         return True
 
     def default_on_enter(self, event):
         chat_id = event.kwargs.get('chat_id')
-        destination = event.transition.dest
-        assert destination == self.state
+        assert event.transition.dest == self.state
+        destination = event.transition.dest.upper()
         # Is there something to say?
         try:
-            message = enums.MESSAGES[self.language][destination.upper()].value
+            message = enums.MESSAGES[self.language][destination]
             try:
-                keyboard = enums.KEYBOARDS['{}_KEYBOARD'.format(
-                    destination.upper())].value
+                keyboard = enums.KEYBOARDS[destination]
             except KeyError:
                 keyboard = ReplyKeyboardRemove()
 

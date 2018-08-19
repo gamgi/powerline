@@ -30,7 +30,7 @@ import worker
 
 try:
     logging.info(
-        'attempting to connect to {0} on port {1}'.format(
+        'attempting to connect to redis at {0} on port {1}'.format(
             config.REDIS_HOST,
             config.REDIS_PORT))
     #logging.info('and the orignal is {}'.format(config.REDIS_URL))
@@ -40,6 +40,9 @@ try:
         db=0,
         password=config.REDIS_PASSWORD)
 
+    logging.info(
+        'attempting to connect to database at {}'.format(
+            config.SQLALCHEMY_DATABASE_URI))
     db = create_engine(config.SQLALCHEMY_DATABASE_URI)
     Session = sessionmaker(bind=db)
 

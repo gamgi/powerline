@@ -6,7 +6,7 @@ from state import State
 import config
 # Database
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.exc import SQLAlchemyError, OperationalError
+from sqlalchemy.exc import SQLAlchemyError, OperationalError, ProgrammingError
 import models
 # Other
 import enums
@@ -53,55 +53,85 @@ class Worker:
                 except SQLAlchemyError as e:
                     logging.error(e)
             session.close()
-        except OperationalError:
-            logging.error("Unable to connect to database")
-        success = self.state.trigger("start", user_id=user_id, chat_id=chat_id)
-        if success:
-            user.state = self.state.state
-            self.save_user(user)
-        logging.info('new state is {}'.format(self.state.state))
+            try:
+                success = self.state.trigger(
+                    "start", user_id=user_id, chat_id=chat_id)
+                if success:
+                    user.state = self.state.state
+                    self.save_user(user)
+                logging.info('new state is {}'.format(self.state.state))
+            except AttributeError as err:  # transition does not exist
+                logging.error(err)
+        except OperationalError as err:
+            logging.error("Unable to connect to database: {}".format(err))
+            raise
+        except ProgrammingError as err:
+            logging.error("Database schema error: {}".format(err))
+            raise
 
     def handle_command(self, user_id, update, command, args):
         chat_id = update.message.chat_id
         user = self.get_user(user_id)
         # Check is registered
         # Check state nad set self.state.set_state('unregistered')
+        self.state.set_state(user.state)
+
         logging.info(
             "command {} with args {} ({})".format(
                 command, args, user_id))
         try:
-            success = self.state.trigger(
-                command,
-                user_id=user_id,
-                chat_id=chat_id,
-                args=args)
-            logging.info('new state is {}'.format(self.state.state))
-            if success:
-                user.state = self.state.state
-                self.save_user(user)
-                #self.save_state(user_id, self.state.state)
-            # success, make menu of possible commands via
-            # m.get_triggers(self.state.state)
-        except AttributeError as err:
-            logging.error(err)
+            try:
+                success = self.state.trigger(
+                    command,
+                    user_id=user_id,
+                    chat_id=chat_id,
+                    args=args)
+                logging.info('new state is {}'.format(self.state.state))
+                if success:
+                    user.state = self.state.state
+                    self.save_user(user)
+                # success, make menu of possible commands via
+                # m.get_triggers(self.state.state)
+            except AttributeError as err:  # transition does not exist
+                logging.error(err)
+        except OperationalError as err:
+            logging.error("Unable to connect to database: {}".format(err))
+            raise
+        except ProgrammingError as err:
+            logging.error("Database schema error: {}".format(err))
+            raise
 
     def handle_message(self, user_id, update, message):
         chat_id = update.message.chat_id
-        #try:
+        # try:
         user = self.get_user(user_id)
-        #except Exception as err:
+        # except Exception as err:
         #    logging.error(err)
         #    return err
-            # TODO
+        # TODO
         self.state.set_state(user.state)
 
         logging.info(
             "message \"{}\" ({})".format(
                 message, user_id))
         try:
-            success = self.state.trigger("message", user_id=user_id, chat_id=chat_id, message=message)
-        except AttributeError as err:
-            logging.error(err)
+            try:
+                success = self.state.trigger(
+                    "message",
+                    user_id=user_id,
+                    chat_id=chat_id,
+                    message=message)
+                logging.info('new state is {}'.format(self.state.state))
+                if success:
+                    user.state = self.state.state
+                    self.save_user(user)
+            except AttributeError as err:  # transition does not exist
+                logging.error(err)
+        except OperationalError as err:
+            logging.error("Unable to connect to database: {}".format(err))
+            raise
+        except ProgrammingError as err:
+            logging.error("Database schema error: {}".format(err))
             raise
 
     def get_user(self, user_id):
