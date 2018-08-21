@@ -78,7 +78,7 @@ class State(Machine):
 
     def is_proper_age(self, event):
         message = event.kwargs.get('message').lower()
-        if message not in list(range(1, 5)) + ['n', 'phuksi', 'mursu']:
+        if message not in list(str(range(1, 5))) + ['n']:
             return False
         return True
 
