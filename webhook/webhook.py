@@ -91,6 +91,10 @@ def error(bot, update, error):
     logger.warning('Update "%s" caused error "%s"', update, error)
 
 
+if (config.TELEGRAM_DOMAIN[-1:] != "/"):
+    logging.warning(
+        "TELEGRAM_DOMAIN does not end in '/', this might cause issues")
+
 if (config.PRODUCTION):
     logging.info("running in PRODUCTION")
 
