@@ -1,9 +1,34 @@
+import testing.postgresql
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from create_database import create_database
 import models
 
+# Postgresql = testing.postgresql.PostgresqlFactory(
+#    cache_initialized_db=True)
 
-def create_mock_database(db_engine, setup='simple_one_user'):
+
+class testing_database(object):
+    def __init__(self):
+        # Postgresql class which shares the generated test database
+        self.db = testing.postgresql.Postgresql()
+        self.db_engine = create_engine(self.db.url())
+
+    def engine(self):
+        return self.db_engine
+
+    def db(self):
+        return self.db
+
+    def __del__(self):
+        self.stop()
+
+    def stop(self):
+        self.db.stop()
+        # Postgresql.clear_cache()
+
+
+def create_database_fixture(db_engine, setup='simple_one_user'):
     assert db_engine is not None
     create_database(db_engine=db_engine)
 

@@ -5,7 +5,6 @@ from telegram import Message, Update
 # Testing
 import pytest
 from unittest.mock import MagicMock
-import testing.postgresql
 
 # Logging
 import logging
@@ -16,14 +15,11 @@ logger = logging.getLogger()
 sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir))
 
 
-from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from create_mock_database import create_mock_database
+from create_mock_database import testing_database, create_database_fixture
 # Enable following line to echo database queries
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
-# Postgresql class which shares the generated test database
-Postgresql = testing.postgresql.PostgresqlFactory(cache_initialized_db=True)
 
 # Helpers
 
@@ -54,18 +50,13 @@ from worker import Worker
 md = MockData()
 
 
-def tearDownModule(self):
-    # clear cached database at end of tests
-    Postgresql.clear_cache()
-
-
 @pytest.fixture(scope="module")
 def db_engine():
-    db = Postgresql()
-    db_engine = create_engine(db.url())
+    db = testing_database()
+    db_engine = db.engine()
 
     # Create db schema
-    create_mock_database(db_engine, 'simple_one_user')
+    create_database_fixture(db_engine, 'simple_one_user')
 
     yield db_engine
     db.stop()
@@ -91,6 +82,8 @@ def Session(db_engine):
     Session = sessionmaker(bind=connection)
 
     yield Session
+
+    # rollback transaction
     trans.rollback()
 
     # return connection to the Engine
@@ -108,6 +101,7 @@ def inspect_session(Session):
 @pytest.fixture(scope="function")
 def worker(bot, Session, redis):
     worker = Worker()
+    # TODO pass state machine to worker
     worker.bind(bot, Session, redis)
     yield worker
 
