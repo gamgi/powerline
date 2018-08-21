@@ -18,7 +18,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir))
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from create_database import create_database
+from create_mock_database import create_mock_database
 # Enable following line to echo database queries
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
@@ -62,8 +62,11 @@ def tearDownModule(self):
 @pytest.fixture(scope="module")
 def db_engine():
     db = Postgresql()
-    create_database(db.url())
     db_engine = create_engine(db.url())
+
+    # Create db schema
+    create_mock_database(db_engine, 'simple_one_user')
+
     yield db_engine
     db.stop()
 
@@ -83,12 +86,12 @@ def Session(db_engine):
     connection = db_engine.connect()
 
     # begin a non-ORM transaction
-    #trans = connection.begin()
+    trans = connection.begin()
 
     Session = sessionmaker(bind=connection)
 
     yield Session
-    # trans.rollback()
+    trans.rollback()
 
     # return connection to the Engine
     connection.close()

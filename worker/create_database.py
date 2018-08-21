@@ -2,9 +2,10 @@ from sqlalchemy import create_engine
 from models import Base
 
 
-def create_database(uri):
-    engine = create_engine(uri)
-    Base.metadata.create_all(bind=engine)
+def create_database(uri='postgres://postgres', db_engine=None):
+    if db_engine is None:
+        db_engine = create_engine(uri)
+    Base.metadata.create_all(bind=db_engine)
 
 
 # When starting the docker container, this file is executed
