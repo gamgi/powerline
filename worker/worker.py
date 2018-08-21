@@ -2,6 +2,7 @@
 import telegram.error
 # State machine
 from state import State
+import transitions.core
 # from telegram import Bot
 import config
 # Database
@@ -60,7 +61,10 @@ class Worker:
                     user.state = self.state.state
                     self.save_user(user)
                 logging.info('new state is {}'.format(self.state.state))
-            except AttributeError as err:  # transition does not exist
+            except transitions.core.MachineError as err:  # transition does not exist
+                logging.error(
+                    "Attempted transition '{}' from state '{}' for user {} failed".format(
+                        'start', self.state.state, user_id))
                 logging.error(err)
         except OperationalError as err:
             logging.error("Unable to connect to database: {}".format(err))
@@ -86,13 +90,16 @@ class Worker:
                     user_id=user_id,
                     chat_id=chat_id,
                     args=args)
-                logging.info('new state is {}'.format(self.state.state))
                 if success:
+                    logging.info('new state is {}'.format(self.state.state))
                     user.state = self.state.state
                     self.save_user(user)
                 # success, make menu of possible commands via
                 # m.get_triggers(self.state.state)
-            except AttributeError as err:  # transition does not exist
+            except transitions.core.MachineError as err:  # transition does not exist
+                logging.error(
+                    "Attempted transition '{}' from state '{}' for user {} failed".format(
+                        command, self.state.state, user_id))
                 logging.error(err)
         except OperationalError as err:
             logging.error("Unable to connect to database: {}".format(err))
@@ -121,11 +128,16 @@ class Worker:
                     user_id=user_id,
                     chat_id=chat_id,
                     message=message)
-                logging.info('new state is {}'.format(self.state.state))
                 if success:
+                    logging.info('new state is {}'.format(self.state.state))
                     user.state = self.state.state
                     self.save_user(user)
-            except AttributeError as err:  # transition does not exist
+                else:
+                    logging.info('no change')
+            except transitions.core.MachineError as err:  # transition does not exist
+                logging.error(
+                    "Attempted transition '{}' from state '{}' for user {} failed".format(
+                        'message', self.state.state, user_id))
                 logging.error(err)
         except OperationalError as err:
             logging.error("Unable to connect to database: {}".format(err))
