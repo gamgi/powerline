@@ -25,7 +25,7 @@ listen = ['high', 'default', 'low']
 redis_url = config.REDIS_URL
 if not redis_url:
     raise RuntimeError('Set up Redis first.')
-import state
+from state import State
 import worker
 
 try:
@@ -52,7 +52,7 @@ try:
 
     if __name__ == '__main__':
         # Bind worker to db and redis
-        worker.bind(bot, Session, redis)
+        worker.bind(bot, Session, redis, State)
 
         with Connection(redis):
             rq_worker = Worker(map(Queue, listen))

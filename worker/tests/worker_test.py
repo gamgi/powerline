@@ -21,9 +21,6 @@ from create_mock_database import testing_database, create_database_fixture
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 
-# Helpers
-
-
 def get_user_id_from_update(update):
     try:
         return update['message']['from_user']['id']
@@ -42,6 +39,7 @@ def get_command_and_args_from_update(update):
 
 # Mock data
 from mock_data import MockData
+import state_fixture
 import models
 
 # Test target
@@ -72,6 +70,11 @@ def bot():
     return MagicMock()
 
 
+@pytest.fixture(scope="module")
+def State():
+    return state_fixture.State
+
+
 @pytest.fixture(scope="function")
 def Session(db_engine):
     connection = db_engine.connect()
@@ -99,10 +102,9 @@ def inspect_session(Session):
 
 
 @pytest.fixture(scope="function")
-def worker(bot, Session, redis):
+def worker(bot, Session, redis, State):
     worker = Worker()
-    # TODO pass state machine to worker
-    worker.bind(bot, Session, redis)
+    worker.bind(bot, Session, redis, State)
     yield worker
 
 

@@ -1,7 +1,6 @@
 # Telegram API
 import telegram.error
 # State machine
-from state import State
 import transitions.core
 # from telegram import Bot
 import config
@@ -26,7 +25,7 @@ class UserNotFoundError(LookupError):
 
 
 class Worker:
-    def bind(self, bot, Session, redis):
+    def bind(self, bot, Session, redis, State):
         self.bot = bot
         self.redis = redis
         self.Session = Session
