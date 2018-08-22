@@ -6,7 +6,7 @@ test_data_dir = Path('tests/test_data/')
 
 
 class TData:
-    """Class that permits access to mock data.
+    """Provides smooth access to test data
     """
 
     def __init__(self):

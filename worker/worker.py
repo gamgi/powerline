@@ -18,6 +18,7 @@ logging.basicConfig(
 logger = logging.getLogger("worker.internal")
 # logger = logging.getLogger('rq.worker')
 logger.setLevel(logging.INFO)
+import helpers
 
 
 class UserNotFoundError(LookupError):
@@ -35,9 +36,6 @@ class Worker:
     def handle_command_start(self, user_id, update):
         logging.debug("command_start ({})".format(user_id))
         chat_id = update.message.chat_id
-        # self.bot.send_message(
-        #    chat_id=update.message.chat_id,
-        #    text=enums.MESSAGES['EN'].START_HELLO_MESSAGE.value)
         # Save user to DB if new
         try:
             session = self.Session()
@@ -72,8 +70,11 @@ class Worker:
             logging.error("Database schema error: {}".format(err))
             raise
 
-    def handle_command(self, user_id, update, command, args):
+    def handle_command(self, user_id, update):
+        command, args = helpers.get_command_and_args_from_update(update)
         chat_id = update.message.chat_id
+        assert command is not None
+        assert chat_id is not None
         user = self.get_user(user_id)
         # Check is registered
         # Check state nad set self.state.set_state('unregistered')

@@ -1,46 +1,26 @@
 import sys
-import os
-from telegram import Message, Update
+import os.path
 
 # Testing
 import pytest
 from unittest.mock import MagicMock
 
-# Logging
-import logging
-logging.basicConfig()
-logger = logging.getLogger()
-
 # A hack to make imports work in the test target
 sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir))
 
-
+# Database
 from sqlalchemy.orm import sessionmaker
 from create_fake_database import fake_database, create_database_fixture
+
+# Logging
+import logging
 # Enable following line to echo database queries
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
-
-def get_user_id_from_update(update):
-    try:
-        return update['message']['from_user']['id']
-    except BaseException:
-        return ''
-
-
-def get_command_and_args_from_update(update):
-    try:
-        command, unused, args_joined = update['message']['text'].partition(" ")
-        return command.replace("/", "", 1), args_joined.split(" ")
-    except BaseException as err:
-        logging.info(err)
-        return None
-
-
-# test data
+# Test data / misc
+import models
 from tdata import TData
 import state_fixture
-import models
 
 # Test target
 from worker import Worker
@@ -126,9 +106,8 @@ class TestCommands:
         worker.state.set_state('unregistered')
         update = td.update_for_command(
             bot, "dummy", "one two three")
-        user_id = get_user_id_from_update(update)
-        command, args = get_command_and_args_from_update(update)
-        worker.handle_command(user_id, update, command, args)
+        user_id = helpers.get_user_id_from_update(update)
+        worker.handle_command(user_id, update)
 
         # Asserts
         assert worker.state.state == 'dummy_state'
@@ -143,9 +122,12 @@ class TestCommands:
 class TestRegisterFlow:
     def test_register_flow(self, worker, bot):
         worker.state.set_state('unregistered')
+        user_id = chat_id = 123
         update = td.update_from_file(bot, 'req_command_start_01')
-        user_id = get_user_id_from_update(update)
-        worker.handle_command(user_id, update, 'start', [])
+        update = td.update_for_command(
+            bot, "start", chat_id=chat_id, user_id=user_id)
+        worker.handle_command_start(user_id, update)
+        #worker.handle_command(user_id, update, 'start', [])
 
         # Assert
         bot.send_message.assert_called()

@@ -32,26 +32,13 @@ except redis_exceptions.ConnectionError:
 # Helpers
 
 
-def get_command_from_update(update):
-    try:
-        return update.message.text.partition(" ")[0]
-    except BaseException:
-        return None
-
-
-def get_message_from_update(update):
-    try:
-        return update.message.text
-    except BaseException:
-        return None
-
 # Handlers
 
 
 def start(bot, update):
     """Send a message when the command /start is issued."""
     logging.info('start')
-    update.message.reply_text('Hi!')
+    # update.message.reply_text('Hi!')
     try:
         user_id = update.message.from_user.id
     except AttributeError:
@@ -62,21 +49,19 @@ def start(bot, update):
 
 
 def any_command(bot, update, args):
-    command = get_command_from_update(update)
-    logging.info('command ' + command + ' with args ' + args)
-    update.message.reply_text('Hi!')
+    logging.info('command')
+    # update.message.reply_text('Hi!')
     try:
         user_id = update.message.from_user.id
     except AttributeError:
         # No from_user means message is from a channel
         return
     result = q.enqueue(
-        'worker.handle_command', user_id, update, command, args)
+        'worker.handle_command', user_id, update)
 
 
 def message(bot, update):
-    message = get_message_from_update(update)
-    logging.info("message {}".format(message))
+    logging.info('message')
     try:
         user_id = update.message.from_user.id
     except AttributeError:
