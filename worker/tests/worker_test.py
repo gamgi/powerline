@@ -37,15 +37,15 @@ def get_command_and_args_from_update(update):
         return None
 
 
-# Mock data
-from mock_data import MockData
+# test data
+from tdata import TData
 import state_fixture
 import models
 
 # Test target
 from worker import Worker
 
-md = MockData()
+td = TData()
 
 
 @pytest.fixture(scope="module")
@@ -111,7 +111,7 @@ def worker(bot, Session, redis, State):
 class TestCommands:
     def test_handle_command_start(self, Session, inspect_session, worker, bot):
         user_id = chat_id = 123
-        update = md.update_for_command(
+        update = td.update_for_command(
             bot, "start", chat_id=chat_id, user_id=user_id)
         worker.handle_command_start(user_id, update)
 
@@ -124,7 +124,7 @@ class TestCommands:
 
     def test_command_dummy(self, worker, bot):
         worker.state.set_state('unregistered')
-        update = md.update_for_command(
+        update = td.update_for_command(
             bot, "dummy", "one two three")
         user_id = get_user_id_from_update(update)
         command, args = get_command_and_args_from_update(update)
@@ -143,7 +143,7 @@ class TestCommands:
 class TestRegisterFlow:
     def test_register_flow(self, worker, bot):
         worker.state.set_state('unregistered')
-        update = md.update_from_file(bot, 'req_command_start_01')
+        update = td.update_from_file(bot, 'req_command_start_01')
         user_id = get_user_id_from_update(update)
         worker.handle_command(user_id, update, 'start', [])
 
@@ -151,7 +151,7 @@ class TestRegisterFlow:
         bot.send_message.assert_called()
         assert worker.state.state == 'register_1'
 
-        update = md.update_for_message(
+        update = td.update_for_message(
             bot, "mr")
         worker.handle_message(user_id, update, "mr")
 

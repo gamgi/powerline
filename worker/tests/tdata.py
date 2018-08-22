@@ -2,10 +2,10 @@ import json
 from pathlib import Path
 from telegram import Update
 
-test_data_dir = Path('tests/mock_data/')
+test_data_dir = Path('tests/test_data/')
 
 
-class MockData:
+class TData:
     """Class that permits access to mock data.
     """
 
