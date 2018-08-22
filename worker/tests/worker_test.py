@@ -16,7 +16,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir))
 
 
 from sqlalchemy.orm import sessionmaker
-from create_mock_database import testing_database, create_database_fixture
+from create_fake_database import fake_database, create_database_fixture
 # Enable following line to echo database queries
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
@@ -50,7 +50,7 @@ md = MockData()
 
 @pytest.fixture(scope="module")
 def db_engine():
-    db = testing_database()
+    db = fake_database()
     db_engine = db.engine()
 
     # Create db schema

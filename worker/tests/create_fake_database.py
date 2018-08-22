@@ -8,7 +8,7 @@ import models
 #    cache_initialized_db=True)
 
 
-class testing_database(object):
+class fake_database(object):
     def __init__(self):
         # Postgresql class which shares the generated test database
         self.db = testing.postgresql.Postgresql()

@@ -3,12 +3,17 @@ from models import Base
 
 
 def create_database(uri='postgres://postgres', db_engine=None):
+    """Creates database schema.
+    
+    Accepts db URI or engine as parameter.
+    """
     if db_engine is None:
         db_engine = create_engine(uri)
     Base.metadata.create_all(bind=db_engine)
 
 
-# When starting the docker container, this file is executed
+# When starting the docker container (for development)
+# this file is executed to ensure the db has a schema
 if __name__ == "__main__":
     from config import SQLALCHEMY_DATABASE_URI
     from sys import exit
