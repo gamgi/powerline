@@ -1,0 +1,33 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+atomicwrites = "*"
+attrs = "*"
+certifi = "*"
+click = "*"
+future = "*"
+more-itertools = "*"
+"pg8000" = "*"
+pluggy = "*"
+"psycopg2-binary" = "==2.7.5"
+py = "*"
+six = "*"
+python-dotenv = "*"
+python-telegram-bot = "*"
+redis = "*"
+rq = "*"
+transitions = "*"
+SQLAlchemy = "*"
+
+[dev-packages]
+"autopep8" = "*"
+"testing.common.database" = "*"
+"testing.postgresql" = "*"
+pytest = "*"
+pycodestyle = "*"
+
+[requires]
+python_version = "3.6"

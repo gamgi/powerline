@@ -1,7 +1,6 @@
 # Powerline
 Telegram chat hub for customer support and community building.
 
-
 # Deploying
 In the project root, log in to heroku and heroku container registry. Then run
 `heroku container:push --recursive`
@@ -10,6 +9,7 @@ In the project root, log in to heroku and heroku container registry. Then run
 See [Heroku:Docker Deploys](https://devcenter.heroku.com/articles/container-registry-and-runtime) for details.
 
 # Developing
+Make sure you have docker installed. You do *not* need to create an account, just go [here](https://download.docker.com/mac/edge/Docker.dmg)
 ## Running locally
 1. rename `env.sample` files to `.env` and fill in contents.
 2. `docker-compose up --build`
@@ -21,4 +21,8 @@ Using ngrok `./ngrok http 8433` and put the domain in `.env` files where require
 Tests use [pytest](https://docs.pytest.org/en/latest/contents.html).
 
 ## Running tests
-Ensure in that you have activated the virtual environment and installed the packages. Then within a subfolder (eg. `worker/`) run `pytest`.
+1. Get pipenv with `pip install --user pipenv`.
+2. `cd worker/`
+3. `pipenv install --dev`
+4. `pipenv shell` to activate virtual environment
+5. within virtual environment, run `pytest`

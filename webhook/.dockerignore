@@ -1,5 +1,5 @@
 .dockerignore
-Dockerfile
+Dockerfile*
 db.sqlite3
 __pycache__
 *.pyc
@@ -21,3 +21,4 @@ venv/
 *.sh
 tests/
 .pytest_cache
+.pipenv*
