@@ -44,7 +44,10 @@ class TData:
 
         mock_data = self.data['req_template_command_01']
         # set command
-        mock_data['message']['text'] = "/{} {}".format(command, args)
+        if args:
+            mock_data['message']['text'] = "/{} {}".format(command, args)
+        else:
+            mock_data['message']['text'] = "/{}".format(command)
         mock_data['message']['entities'][0]['length'] = len(command) + 1
         # set chat_id
         if (chat_id):

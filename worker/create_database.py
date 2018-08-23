@@ -4,7 +4,7 @@ from models import Base
 
 def create_database(uri='postgres://postgres', db_engine=None):
     """Creates database schema.
-    
+
     Accepts db URI or engine as parameter.
     """
     if db_engine is None:

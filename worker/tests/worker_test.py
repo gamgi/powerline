@@ -21,6 +21,7 @@ import logging
 import models
 from tdata import TData
 import state_fixture
+import helpers
 
 # Test target
 from worker import Worker
@@ -91,8 +92,7 @@ def worker(bot, Session, redis, State):
 class TestCommands:
     def test_handle_command_start(self, Session, inspect_session, worker, bot):
         user_id = chat_id = 123
-        update = td.update_for_command(
-            bot, "start", chat_id=chat_id, user_id=user_id)
+        update = td.update_for_command(bot, "start", chat_id=chat_id, user_id=user_id)
         worker.handle_command_start(user_id, update)
 
         # Asserts
@@ -104,8 +104,7 @@ class TestCommands:
 
     def test_command_dummy(self, worker, bot):
         worker.state.set_state('unregistered')
-        update = td.update_for_command(
-            bot, "dummy", "one two three")
+        update = td.update_for_command(bot, "dummy", "one two three")
         user_id = helpers.get_user_id_from_update(update)
         worker.handle_command(user_id, update)
 
@@ -123,9 +122,7 @@ class TestRegisterFlow:
     def test_register_flow(self, worker, bot):
         worker.state.set_state('unregistered')
         user_id = chat_id = 123
-        update = td.update_from_file(bot, 'req_command_start_01')
-        update = td.update_for_command(
-            bot, "start", chat_id=chat_id, user_id=user_id)
+        update = td.update_for_command(bot, "start", chat_id=chat_id, user_id=user_id)
         worker.handle_command_start(user_id, update)
         #worker.handle_command(user_id, update, 'start', [])
 
@@ -135,7 +132,7 @@ class TestRegisterFlow:
 
         update = td.update_for_message(
             bot, "mr")
-        worker.handle_message(user_id, update, "mr")
+        worker.handle_message(user_id, update)
 
         # Assert
         bot.send_message.assert_called()

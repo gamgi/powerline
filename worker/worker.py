@@ -108,18 +108,14 @@ class Worker:
             logging.error("Database schema error: {}".format(err))
             raise
 
-    def handle_message(self, user_id, update, message):
+    def handle_message(self, user_id, update):
+        message = helpers.get_message_from_update(update)
         chat_id = update.message.chat_id
-        # try:
         user = self.get_user(user_id)
-        # except Exception as err:
-        #    logging.error(err)
-        #    return err
-        # TODO
         self.state.set_state(user.state)
 
         logging.info(
-            "message \"{}\" ({})".format(
+            'message "{}\" ({})'.format(
                 message, user_id))
         try:
             try:
