@@ -23,17 +23,11 @@ class State(Machine):
 
         # User registration transitions
         transitions_register = [
-            {'trigger': 'start',
-             'source': 'unregistered',
-             'dest': 'register_1'},
-            {'trigger': 'message',
-             'source': 'register_1',
-             'dest': 'register_2',
-                     'conditions': 'is_proper_title'},
-            {'trigger': 'message',
-             'source': 'register_2',
-             'dest': 'register_3',
-                     'conditions': 'is_proper_age'},
+            {'trigger': 'start', 'source': 'unregistered', 'dest': 'register_1'},
+            {'trigger': 'message', 'source': 'register_1', 'dest': 'register_2',
+             'conditions': 'is_proper_title'},
+            {'trigger': 'message', 'source': 'register_2', 'dest': 'register_3',
+             'conditions': 'is_proper_age'},
         ]
         # General transitions
         transitions = [
