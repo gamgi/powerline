@@ -4,9 +4,6 @@ import os.path
 # A hack to make imports work in the test target
 sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir))
 
-# Logging
-import logging
-
 # Test data / misc
 from tdata import TData
 td = TData()
@@ -66,26 +63,26 @@ class TestGetCommandAndArgsFromUpdate:
 
 class TestGetUserIdFromUpdate:
     def test_with_command(self):
-        update = td.update_for_command(None, "start", user_id="123")
+        update = td.update_for_command(None, "start", user_id="1337")
         user_id = helpers.get_user_id_from_update(update)
 
         # Asserts
-        assert user_id == 123
+        assert user_id == 1337
 
     def test_with_command_and_args(self):
         update = td.update_for_command(
-            None, "start", "one two three", user_id="123")
+            None, "start", "one two three", user_id="1337")
         user_id = helpers.get_user_id_from_update(update)
 
         # Asserts
-        assert user_id == 123
+        assert user_id == 1337
 
     def test_with_message(self):
-        update = td.update_for_message(None, "dead / beef", user_id="123")
+        update = td.update_for_message(None, "dead / beef", user_id="1337")
         user_id = helpers.get_user_id_from_update(update)
 
         # Asserts
-        assert user_id == 123
+        assert user_id == 1337
 
 
 class TestGetMessageFromUpdate:
