@@ -58,7 +58,7 @@ class Worker:
                     user.state = self.state.state
                     self.save_user(user)
                 logging.info('new state is {}'.format(self.state.state))
-            except transitions.core.MachineError as err:  # transition does not exist
+            except AttributeError as err:  # transition does not exist
                 logging.error(
                     "Attempted transition '{}' from state '{}' for user {} failed".format(
                         'start', self.state.state, user_id))
@@ -96,7 +96,7 @@ class Worker:
                     self.save_user(user)
                 # success, make menu of possible commands via
                 # m.get_triggers(self.state.state)
-            except transitions.core.MachineError as err:  # transition does not exist
+            except AttributeError as err:  # transition does not exist
                 logging.error(
                     "Attempted transition '{}' from state '{}' for user {} failed".format(
                         command, self.state.state, user_id))
@@ -130,7 +130,7 @@ class Worker:
                     self.save_user(user)
                 else:
                     logging.info('no change')
-            except transitions.core.MachineError as err:  # transition does not exist
+            except AttributeError as err:  # transition does not exist
                 logging.error(
                     "Attempted transition '{}' from state '{}' for user {} failed".format(
                         'message', self.state.state, user_id))

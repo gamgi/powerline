@@ -100,7 +100,7 @@ class TestCommands:
         args, kwargs = bot.send_message.call_args
         assert kwargs['chat_id'] == chat_id
         assert inspect_session.query(models.User).count() == 1
-        # TODO assert state
+        assert worker.state.state == 'register_1'
 
     def test_command_dummy(self, worker, bot):
         worker.state.set_state('unregistered')
@@ -118,8 +118,8 @@ class TestCommands:
         pass
 
 
-class TestRegisterFlow:
-    def test_register_flow(self, worker, bot):
+class TestTransitions:
+    def test_register_flow(self, worker, bot, inspect_session):
         worker.state.set_state('unregistered')
         user_id = chat_id = 123
         update = td.update_for_command(bot, "start", chat_id=chat_id, user_id=user_id)
@@ -130,10 +130,22 @@ class TestRegisterFlow:
         bot.send_message.assert_called()
         assert worker.state.state == 'register_1'
 
-        update = td.update_for_message(
-            bot, "mr")
+        update = td.update_for_message(bot, "mr")
         worker.handle_message(user_id, update)
 
         # Assert
         bot.send_message.assert_called()
         assert worker.state.state == 'register_2'
+        assert inspect_session.query(models.User).get(user_id).state == 'register_2'
+
+    def test_invalid_transition(self, worker, bot, inspect_session):
+        worker.state.set_state('unregistered')
+        user_id = chat_id = 123
+        update = td.update_for_command(
+            bot, "nonexistent", chat_id=chat_id, user_id=user_id)
+        worker.handle_command(user_id, update)
+        #worker.handle_command(user_id, update, 'start', [])
+
+        # Assert
+        assert worker.state.state == 'unregistered'
+        assert inspect_session.query(models.User).get(user_id).state == 'unregistered'
