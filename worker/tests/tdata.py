@@ -1,3 +1,4 @@
+import copy
 import json
 from pathlib import Path
 from telegram import Update
@@ -42,7 +43,7 @@ class TData:
             chat_id=None):
         """Creates a telegram.Update instance"""
 
-        mock_data = self.data['req_template_command_01']
+        mock_data = copy.deepcopy(self.data['req_template_command_01'])
         # set command
         if args:
             mock_data['message']['text'] = "/{} {}".format(command, args)
@@ -70,7 +71,7 @@ class TData:
             chat_id=None):
         """Creates a telegram.Update instance"""
 
-        mock_data = self.data['req_template_message_01']
+        mock_data = copy.deepcopy(self.data['req_template_message_01'])
         # set command
         mock_data['message']['text'] = message
         # set chat_id
