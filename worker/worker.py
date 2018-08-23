@@ -34,30 +34,27 @@ class Worker:
         logging.info('Worker bound')
 
     def handle_command_start(self, user_id, update):
-        logging.debug("command_start ({})".format(user_id))
+        logging.info("command_start ({})".format(user_id))
         chat_id = update.message.chat_id
-        # Save user to DB if new
         try:
             session = self.Session()
             user = session.query(models.User).get(user_id)
+            session.close()
+            # Save user to DB if new
             if (not user):
                 try:
-                    user = models.User(
-                        id=user_id,
-                        username=update.message.chat.username,
-                        first_name=update.message.chat.first_name)
-                    session.add(user)
-                    session.commit()
+                    user = self.add_user(
+                        ser_id,
+                        update.message.chat.username,
+                        update.message.chat.first_name)
                 except SQLAlchemyError as e:
                     logging.error(e)
-            session.close()
             try:
-                success = self.state.trigger(
-                    "start", user_id=user_id, chat_id=chat_id)
+                success = self.state.trigger("start", user_id=user_id, chat_id=chat_id)
                 if success:
                     user.state = self.state.state
                     self.save_user(user)
-                logging.info('new state is {}'.format(self.state.state))
+                logging.debug('new state is {}'.format(self.state.state))
             except AttributeError as err:  # transition does not exist
                 logging.error(
                     "Attempted transition '{}' from state '{}' for user {} failed".format(
@@ -80,9 +77,7 @@ class Worker:
         # Check state nad set self.state.set_state('unregistered')
         self.state.set_state(user.state)
 
-        logging.info(
-            "command {} with args {} ({})".format(
-                command, args, user_id))
+        logging.info("command {} with args {} ({})".format(command, args, user_id))
         try:
             try:
                 success = self.state.trigger(
@@ -91,7 +86,7 @@ class Worker:
                     chat_id=chat_id,
                     args=args)
                 if success:
-                    logging.info('new state is {}'.format(self.state.state))
+                    logging.debug('new state is {}'.format(self.state.state))
                     user.state = self.state.state
                     self.save_user(user)
                 # success, make menu of possible commands via
@@ -114,9 +109,7 @@ class Worker:
         user = self.get_user(user_id)
         self.state.set_state(user.state)
 
-        logging.info(
-            'message "{}\" ({})'.format(
-                message, user_id))
+        logging.info('message "{}\" ({})'.format(message, user_id))
         try:
             try:
                 success = self.state.trigger(
@@ -161,6 +154,20 @@ class Worker:
                 session.commit()
             except SQLAlchemyError as e:
                 logging.error(e)
+            session.close()
+        except OperationalError:
+            logging.error("Unable to connect to database")
+
+    def add_user(self, user_id, username, first_name):
+        try:
+            session = self.Session()
+            try:
+                user = models.User(id=user_id, username=username, first_name=first_name)
+                session.add(user)
+                session.commit()
+                return user
+            except SQLAlchemyError as e:
+                raise
             session.close()
         except OperationalError:
             logging.error("Unable to connect to database")
