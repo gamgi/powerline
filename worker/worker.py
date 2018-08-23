@@ -37,76 +37,56 @@ class Worker:
         logging.info("command_start ({})".format(user_id))
         chat_id = update.message.chat_id
         try:
-            session = self.Session()
-            user = session.query(models.User).get(user_id)
-            session.close()
-            # Save user to DB if new
-            if (not user):
-                try:
-                    user = self.add_user(
-                        ser_id,
-                        update.message.chat.username,
-                        update.message.chat.first_name)
-                except SQLAlchemyError as e:
-                    logging.error(e)
-            try:
-                success = self.state.trigger("start", user_id=user_id, chat_id=chat_id)
-                if success:
-                    user.state = self.state.state
-                    self.save_user(user)
-                logging.debug('new state is {}'.format(self.state.state))
-            except AttributeError as err:  # transition does not exist
-                logging.error(
-                    "Attempted transition '{}' from state '{}' for user {} failed".format(
-                        'start', self.state.state, user_id))
-                logging.error(err)
-        except OperationalError as err:
-            logging.error("Unable to connect to database: {}".format(err))
-            raise
-        except ProgrammingError as err:
-            logging.error("Database schema error: {}".format(err))
-            raise
+            user = self.add_user(
+                user_id,
+                update.message.chat.username,
+                update.message.chat.first_name)
+        except SQLAlchemyError as e:
+            logging.error(e)
+        success = self.state.trigger("start", user_id=user_id, chat_id=chat_id)
+        if success:
+            user.state = self.state.state
+            self.save_user(user)
 
     def handle_command(self, user_id, update):
         command, args = helpers.get_command_and_args_from_update(update)
         chat_id = update.message.chat_id
         assert command is not None
         assert chat_id is not None
-        user = self.get_user(user_id)
-        # Check is registered
-        # Check state nad set self.state.set_state('unregistered')
+        try:
+            user = self.get_user(user_id)
+        except UserNotFoundError:
+            logging.info('user {} not found'.format(user_id))
+            self.handle_command_start(user_id, update)
+            return
+
         self.state.set_state(user.state)
 
         logging.info("command {} with args {} ({})".format(command, args, user_id))
         try:
-            try:
-                success = self.state.trigger(
-                    command,
-                    user_id=user_id,
-                    chat_id=chat_id,
-                    args=args)
-                if success:
-                    logging.debug('new state is {}'.format(self.state.state))
-                    user.state = self.state.state
-                    self.save_user(user)
-                # success, make menu of possible commands via
-                # m.get_triggers(self.state.state)
-            except AttributeError as err:  # transition does not exist
-                logging.error(
-                    "Attempted transition '{}' from state '{}' for user {} failed".format(
-                        command, self.state.state, user_id))
-                logging.error(err)
-        except OperationalError as err:
-            logging.error("Unable to connect to database: {}".format(err))
-            raise
-        except ProgrammingError as err:
-            logging.error("Database schema error: {}".format(err))
-            raise
+            success = self.state.trigger(
+                command,
+                user_id=user_id,
+                chat_id=chat_id,
+                args=args)
+            if success:
+                user.state = self.state.state
+                self.save_user(user)
+        except AttributeError as err:  # transition does not exist
+            logging.error(
+                "Attempted transition '{}' from state '{}' for user {} failed".format(
+                    command, self.state.state, user_id))
+            logging.error(err)
 
     def handle_message(self, user_id, update):
         message = helpers.get_message_from_update(update)
         chat_id = update.message.chat_id
-        user = self.get_user(user_id)
+        try:
+            user = self.get_user(user_id)
+        except UserNotFoundError:
+            logging.info('user {} not found'.format(user_id))
+            self.handle_command_start(user_id, update)
+            return
         self.state.set_state(user.state)
 
         logging.info('message "{}\" ({})'.format(message, user_id))
@@ -118,7 +98,6 @@ class Worker:
                     chat_id=chat_id,
                     message=message)
                 if success:
-                    logging.info('new state is {}'.format(self.state.state))
                     user.state = self.state.state
                     self.save_user(user)
                 else:
@@ -139,9 +118,9 @@ class Worker:
         try:
             session = self.Session()
             user = session.query(models.User).get(user_id)
+            session.close()
             if (not user):
                 raise UserNotFoundError
-            session.close()
             return user
         except OperationalError:
             logging.error("Unable to connect to database")
@@ -168,7 +147,8 @@ class Worker:
                 return user
             except SQLAlchemyError as e:
                 raise
-            session.close()
+            finally:
+                session.close()
         except OperationalError:
             logging.error("Unable to connect to database")
 
