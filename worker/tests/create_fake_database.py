@@ -14,11 +14,9 @@ class fake_database(object):
         self.db = testing.postgresql.Postgresql()
         self.db_engine = create_engine(self.db.url())
 
+    @property
     def engine(self):
         return self.db_engine
-
-    def db(self):
-        return self.db
 
     def __del__(self):
         self.stop()
