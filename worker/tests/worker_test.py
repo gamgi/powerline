@@ -102,6 +102,7 @@ class TestHandleCommandStart:
         assert inspect_session.query(models.User).count() == 1
         assert worker.state.state == 'register_1'
 
+    @pytest.mark.derp
     def test_with_new_user(self, Session, inspect_session, worker, bot):
         user_id = chat_id = 99
         update = td.update_for_command(bot, "start", chat_id=chat_id, user_id=user_id)
@@ -130,25 +131,37 @@ class TestHandleCommand:
         assert worker.state.state == 'dummy_state'
 
 
-
 class TestTransitions:
 
     def test_register_flow(self, worker, bot, inspect_session):
         update = td.update_for_command(bot, "start")
         user_id = helpers.get_user_id_from_update(update)
+        user = inspect_session.query(models.User).get(user_id)
         worker.handle_command(user_id, update)
 
         # Assert
         bot.send_message.assert_called()
         assert worker.state.state == 'register_1'
 
-        update = td.update_for_message(bot, "mr")
+        update = td.update_for_message(bot, 'nn')
+        worker.handle_message(user_id, update)
+
+        # Assert
+        assert worker.state.state == 'register_1'
+        inspect_session.refresh(user)
+        assert user.state == 'register_1'
+        assert user.title is None
+
+        update = td.update_for_message(bot, 'mr')
         worker.handle_message(user_id, update)
 
         # Assert
         bot.send_message.assert_called()
         assert worker.state.state == 'register_2'
-        assert inspect_session.query(models.User).get(user_id).state == 'register_2'
+        inspect_session.refresh(user)
+        assert user is not None
+        assert user.state == 'register_2'
+        assert user.title == 'mr'
 
     def test_invalid_transition(self, worker, bot, inspect_session):
         # worker.state.set_state('unregistered')
@@ -167,6 +180,7 @@ class TestTransitions:
 
     def test_multiple_users(self):
         pass
+
 
 class TestBehaviourWithDatabaseIssues:
     pass
