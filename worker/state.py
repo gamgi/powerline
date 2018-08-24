@@ -10,80 +10,65 @@ logging.getLogger('transitions').setLevel(logging.INFO)
 
 
 class State(Machine):
-    # self.is_waiting_message=True
-    # def save_to_db
     def __init__(self, bot):
         self.bot = bot
         self.language = 'EN'  # TODO
         states = [
-            'unregistered',
+            {'name': 'unregistered'},
             {'name': 'register_1', 'on_enter': 'default_on_enter'},
             {'name': 'register_2', 'on_enter': 'default_on_enter'},
             {'name': 'register_3', 'on_enter': 'default_on_enter'},
-            'idle',
-            'dummy_state']
+            {'name': 'idle'},
+            {'name': 'dummy_state'}]
 
-        commands = [{'trigger': 'dummy',
-                     'source': '*',
-                     'dest': 'dummy_state'},
-                    {'trigger': 'start',
-                     'source': 'unregistered',
-                     'dest': 'register_1'},
-                    {'trigger': 'message',
-                     'source': 'register_1',
-                     'dest': 'register_2',
-                     'conditions': 'is_proper_title'},
-                    {'trigger': 'message',
-                     'source': 'register_2',
-                     'dest': 'register_3',
-                     'conditions': 'is_proper_age'
-                     },
-                    ]
-        transitions = [
-            # lump.heat(answer=74)
-            # {'trigger': 'check_a', 'source': 'unregistered', 'dest': None, conditions=is_proper_x},
-            # {'trigger': 'check_a', 'source': 'register_1', 'dest': 'register_w', conditions=y},
-            # define quesiton on enter. write on exit
-            {'trigger': 'ask_a', 'source': 'unregistered', 'dest': 'register_1'},
-            {'trigger': 'ask_b', 'source': 'register_1', 'dest': 'register_2'},
-            {'trigger': 'ask_c', 'source': 'register_2', 'dest': 'register_3'},
-            {'trigger': 'complete_register', 'source': 'register_3', 'dest': 'idle'},
+        # User registration transitions
+        transitions_register = [
+            {'trigger': 'start', 'source': 'unregistered', 'dest': 'register_1'},
+            {'trigger': 'message', 'source': 'register_1', 'dest': 'register_2',
+                'conditions': 'is_proper_title', 'before': 'set_user_title'},
+            {'trigger': 'message', 'source': 'register_2', 'dest': 'register_3',
+             'conditions': 'is_proper_age'},
         ]
+        # General transitions
+        transitions = [
+            {'trigger': 'dummy', 'source': '*', 'dest': 'dummy_state'},
+            {'trigger': 'joke', 'source': 'idle', 'dest': '=', 'after': 'tell_joke'}
+        ]
+
         Machine.__init__(
             self,
             states=states,
-            transitions=transitions + commands,
-            # finalize_event=
+            transitions=transitions + transitions_register,
             send_event=True,
             initial='unregistered')
 
-    """
-    def on_enter_register_1(self, event):
-        chat_id = event.kwargs.get('chat_id')
-        assert chat_id is not None
-        assert user_lang is not None
-
-        self.bot.send_message(
-            chat_id=chat_id,
-            text=enums.MESSAGES[self.language].REGISTER_1.value,
-            reply_markup=enums.KEYBOARDS.REGISTER_1_KEYBOARD.value)
-    """
-
+    # Conditions
     def is_proper_title(self, event):
         message = event.kwargs.get('message').lower()
         if message not in ['mr', 'mrs']:
+            logging.info('not valid')
             return False
+        logging.info('valid')
         return True
 
     def is_proper_age(self, event):
         message = event.kwargs.get('message').lower()
+        chat_id = event.kwargs.get('chat_id')
         if message not in list(str(range(1, 5))) + ['n']:
+            self.bot.send_message(chat_id=chat_id, text="Sorry that's not a proper age")
             return False
         return True
+    # Transition actions
 
+    def set_user_title(self, event):
+        message = event.kwargs.get('message').lower()
+        user = event.kwargs.get('user')
+        user.title = message
+
+    # State actions
     def default_on_enter(self, event):
-        chat_id = event.kwargs.get('chat_id')
         assert event.transition.dest == self.state
+        chat_id = event.kwargs.get('chat_id')
         destination = event.transition.dest.upper()
         # Is there something to say?
         try:
