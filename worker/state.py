@@ -17,7 +17,7 @@ class State(Machine):
             {'name': 'unregistered'},
             {'name': 'register_1', 'on_enter': 'default_on_enter'},
             {'name': 'register_2', 'on_enter': 'default_on_enter'},
-            {'name': 'register_3', 'on_enter': 'default_on_enter'},
+            {'name': 'register_3', 'on_enter': 'default_on_enter', 'on_exit': 'default_on_exit'},
             {'name': 'idle'},
             {'name': 'dummy_state'}]
 
@@ -70,6 +70,7 @@ class State(Machine):
         message = event.kwargs.get('message').lower()
         user = event.kwargs.get('user')
         user.age = message
+    # TODO make the set and is_proper to a class
 
     def set_user_tolerance(self, event):
         message = event.kwargs.get('message').lower()
@@ -86,6 +87,26 @@ class State(Machine):
             message = enums.MESSAGES[self.language][destination]
             try:
                 keyboard = enums.KEYBOARDS[destination]
+            except KeyError:
+                keyboard = ReplyKeyboardRemove()
+
+            self.bot.send_message(
+                chat_id=chat_id,
+                text=message,
+                reply_markup=keyboard)
+            logging.info('Sent message')
+        except KeyError:
+            logging.info('Nothing to say')
+
+    def default_on_exit(self, event):
+        assert event.transition.source == self.state
+        chat_id = event.kwargs.get('chat_id')
+        source = event.transition.source.upper()
+        # Is there something to say?
+        try:
+            message = enums.MESSAGES[self.language]['{}_EXIT'.format(source)]
+            try:
+                keyboard = enums.KEYBOARDS['{}_EXIT'.format(source)]
             except KeyError:
                 keyboard = ReplyKeyboardRemove()
 
