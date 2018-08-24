@@ -38,5 +38,7 @@ services:
     image: "postgres:10-alpine"
     expose:
      - "5432"
+    ports:
+     - "127.0.0.1:9000:5432"
     environment:
      - "POSTGRES_PASSWORD="
