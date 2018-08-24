@@ -159,9 +159,28 @@ class TestTransitions:
         bot.send_message.assert_called()
         assert worker.state.state == 'register_2'
         inspect_session.refresh(user)
-        assert user is not None
         assert user.state == 'register_2'
         assert user.title == 'mr'
+
+        update = td.update_for_message(bot, '1')
+        worker.handle_message(user_id, update)
+
+        # Assert
+        bot.send_message.assert_called()
+        assert worker.state.state == 'register_3'
+        inspect_session.refresh(user)
+        assert user.state == 'register_3'
+        assert user.age == '1'
+
+        update = td.update_for_message(bot, 'normal')
+        worker.handle_message(user_id, update)
+
+        # Assert
+        bot.send_message.assert_called()
+        assert worker.state.state == 'idle'
+        inspect_session.refresh(user)
+        assert user.state == 'idle'
+        assert user.tolerance == 'normal'
 
     def test_invalid_transition(self, worker, bot, inspect_session):
         # worker.state.set_state('unregistered')

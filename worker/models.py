@@ -13,6 +13,8 @@ class User(Base):
     registered = Column(DateTime, default=func.now(), nullable=False)
     state = Column(String, default='unregistered', nullable=False)
     title = Column(String)
+    age = Column(String)
+    tolerance = Column(String, default='normal')
     #chat_id = Column(String, nullable=False)
 
     def __repr__(self):

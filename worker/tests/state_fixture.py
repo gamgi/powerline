@@ -27,7 +27,8 @@ class State(Machine):
             {'trigger': 'message', 'source': 'register_1', 'dest': 'register_2',
                 'conditions': 'is_proper_title', 'before': 'set_user_title'},
             {'trigger': 'message', 'source': 'register_2', 'dest': 'register_3',
-             'conditions': 'is_proper_age'},
+                'conditions': 'is_proper_age', 'before': 'set_user_age'},
+            {'trigger': 'message', 'source': 'register_3', 'dest': 'idle', 'before': 'set_user_tolerance'},
         ]
         # General transitions
         transitions = [
@@ -58,12 +59,23 @@ class State(Machine):
             self.bot.send_message(chat_id=chat_id, text="Sorry that's not a proper age")
             return False
         return True
-    # Transition actions
 
+    # Transition actions
     def set_user_title(self, event):
         message = event.kwargs.get('message').lower()
         user = event.kwargs.get('user')
         user.title = message
+
+    def set_user_age(self, event):
+        message = event.kwargs.get('message').lower()
+        user = event.kwargs.get('user')
+        user.age = message
+    # TODO make the set and is_proper to a class
+
+    def set_user_tolerance(self, event):
+        message = event.kwargs.get('message').lower()
+        user = event.kwargs.get('user')
+        user.tolerance = message
 
     # State actions
     def default_on_enter(self, event):
