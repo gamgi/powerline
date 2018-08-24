@@ -26,3 +26,19 @@ Tests use [pytest](https://docs.pytest.org/en/latest/contents.html).
 3. `pipenv install --dev`
 4. `pipenv shell` to activate virtual environment
 5. within virtual environment, run `pytest`
+
+# Database
+
+## Heroku
+```
+heroku pg:psql
+SELECT * FROM USERS;
+\q
+```
+
+## Local (docker)
+```
+psql -h localhost -p 9000 -U postgres
+SELECT * FROM USERS;
+\q
+```
