@@ -9,6 +9,8 @@ def create_database(uri='postgres://postgres', db_engine=None):
     """
     if db_engine is None:
         db_engine = create_engine(uri)
+    # Delete schem
+    Base.metadata.drop_all(db_engine)
     Base.metadata.create_all(bind=db_engine)
 
 
