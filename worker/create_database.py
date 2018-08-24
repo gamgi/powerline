@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine
 from models import Base
+import config
 
 
 def create_database(uri='postgres://postgres', db_engine=None):
@@ -9,8 +10,9 @@ def create_database(uri='postgres://postgres', db_engine=None):
     """
     if db_engine is None:
         db_engine = create_engine(uri)
-    # Delete schem
-    Base.metadata.drop_all(db_engine)
+    if config.DEVELOPMENT:
+        # Delete schem
+        Base.metadata.drop_all(db_engine)
     Base.metadata.create_all(bind=db_engine)
 
 

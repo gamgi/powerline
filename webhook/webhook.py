@@ -77,7 +77,7 @@ if (config.TELEGRAM_DOMAIN[-1:] != "/"):
     logging.warning(
         "TELEGRAM_DOMAIN does not end in '/', this might cause issues")
 
-if (config.PRODUCTION):
+if (not config.DEVELOPMENT):
     logging.info("running in PRODUCTION")
 
 try:
