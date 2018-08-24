@@ -1,5 +1,4 @@
 import logging
-from redis import StrictRedis
 from transitions import Machine
 from telegram import ReplyKeyboardRemove
 
@@ -37,7 +36,8 @@ class State(Machine):
                     {'trigger': 'message',
                      'source': 'register_2',
                      'dest': 'register_3',
-                     'conditions': 'is_proper_age'},
+                     'conditions': 'is_proper_age'
+                     },
                     ]
         transitions = [
             # lump.heat(answer=74)
@@ -52,9 +52,8 @@ class State(Machine):
         Machine.__init__(
             self,
             states=states,
-            transitions=transitions +
-            # after_state_change --> save to db
-            commands,
+            transitions=transitions + commands,
+            # finalize_event=
             send_event=True,
             initial='unregistered')
 
