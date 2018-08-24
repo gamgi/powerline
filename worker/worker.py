@@ -102,7 +102,7 @@ class Worker:
                 user = self.get_user(session, user_id)
             except UserNotFoundError:
                 logging.info('user {} not found'.format(user_id))
-                self.handle_command_start(user_id, update)
+                self.handle_command_start(user_id, update, session)
                 return
             # Load user state
             self.state.set_state(user.state)

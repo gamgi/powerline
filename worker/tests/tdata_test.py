@@ -13,7 +13,6 @@ from tdata import TData
 td = TData()
 
 
-@pytest.mark.tdata
 class TestUpdateForCommand:
     def test_command(self):
         update = td.update_for_command(None, "start")
