@@ -11,7 +11,7 @@ services:
     volumes:
      - ./webhook:/webhook
     environment:
-     - "PRODUCTION=0"
+     - "DEVELOPMENT=1"
      - "TELEGRAM_PORT=8433"
      - "TELEGRAM_DOMAIN=https://<something>.ngrok.io/"
     #env_file:

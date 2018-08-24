@@ -19,7 +19,7 @@ SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL") or os.getenv(
     "SQLALCHEMY_DATABASE_URI",
     "postgresql://localhost:5432")
 # From local env
-PRODUCTION = int(os.getenv("PRODUCTION", 0))
+DEVELOPMENT = int(os.getenv("DEVELOPMENT", 0))
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_PORT = int(os.getenv("TELEGRAM_PORT") or 8443)
 TELEGRAM_DOMAIN = os.getenv("TELEGRAM_DOMAIN")
