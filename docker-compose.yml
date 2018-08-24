@@ -12,6 +12,8 @@ services:
      - ./webhook:/webhook
     environment:
      - "PRODUCTION=0"
+     - "TELEGRAM_PORT=8433"
+     - "TELEGRAM_DOMAIN=https://<something>.ngrok.io/"
     #env_file:
     # - ./webhook/.env
   redis:

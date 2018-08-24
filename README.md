@@ -15,7 +15,7 @@ Make sure you have docker installed. You do *not* need to create an account, jus
 2. `docker-compose up --build`
 
 ## Tunneling data
-Using ngrok `./ngrok http 8433` and put the domain in `.env` files where required.
+Using ngrok `./ngrok http 8433` and put the domain in `docker-compose.yml`.
 
 # Testing
 Tests use [pytest](https://docs.pytest.org/en/latest/contents.html).
