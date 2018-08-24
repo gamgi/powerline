@@ -44,8 +44,7 @@ def start(bot, update):
     except AttributeError:
         # No from_user means message is from a channel
         return
-    result = q.enqueue(
-        'worker.handle_command_start', user_id, update)
+    result = q.enqueue('worker.handle_command', user_id, update)
 
 
 def any_command(bot, update, args):
@@ -56,8 +55,7 @@ def any_command(bot, update, args):
     except AttributeError:
         # No from_user means message is from a channel
         return
-    result = q.enqueue(
-        'worker.handle_command', user_id, update)
+    result = q.enqueue('worker.handle_command', user_id, update)
 
 
 def message(bot, update):
@@ -67,8 +65,7 @@ def message(bot, update):
     except AttributeError:
         # No from_user means message is from a channel
         return
-    result = q.enqueue(
-        'worker.handle_message', user_id, update, message)
+    result = q.enqueue('worker.handle_message', user_id, update)
 
 
 def error(bot, update, error):
@@ -100,7 +97,7 @@ try:
     #dispatcher.add_handler(CommandHandler("start", start))
     # for command in commands:
     #    dispatcher.add_handler(CommandHandler(command, any_command, pass_args=True))
-    dispatcher.add_handler(CommandHandler("start", start))
+    #dispatcher.add_handler(CommandHandler("start", start))
     # Possibly replace with
     #dispatcher.add_handler(MessageHandler(Filters.command, any_command))
     dispatcher.add_handler(AnyCommandHandler(any_command))

@@ -80,7 +80,7 @@ class Worker:
                     self.save_user(session, user)
                 else:
                     logging.info('no change')
-            except AttributeError as err:  # transition does not exist
+            except (AttributeError, transitions.core.MachineError) as err:  # transition does not exist
                 logging.error(
                     "Attempted transition '{}' from state '{}' for user {} failed".format(
                         command, self.state.state, user_id))
@@ -121,7 +121,7 @@ class Worker:
                     self.save_user(session, user)
                 else:
                     logging.info('no change')
-            except AttributeError as err:  # transition does not exist
+            except (AttributeError, transitions.core.MachineError) as err:  # transition does not exist
                 logging.error(
                     "Attempted transition '{}' from state '{}' for user {} failed".format(
                         'message', self.state.state, user_id))

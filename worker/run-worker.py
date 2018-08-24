@@ -28,35 +28,35 @@ if not redis_url:
 from state import State
 import worker
 
-try:
-    logging.info(
-        'attempting to connect to redis at {0} on port {1}'.format(
-            config.REDIS_HOST,
-            config.REDIS_PORT))
-    #logging.info('and the orignal is {}'.format(config.REDIS_URL))
-    redis = Redis(
-        host=config.REDIS_HOST,
-        port=config.REDIS_PORT,
-        db=0,
-        password=config.REDIS_PASSWORD)
+if __name__ == '__main__':
+    try:
+        logging.info(
+            'attempting to connect to redis at {0} on port {1}'.format(
+                config.REDIS_HOST,
+                config.REDIS_PORT))
+        #logging.info('and the orignal is {}'.format(config.REDIS_URL))
+        redis = Redis(
+            host=config.REDIS_HOST,
+            port=config.REDIS_PORT,
+            db=0,
+            password=config.REDIS_PASSWORD)
 
-    logging.info(
-        'attempting to connect to database at {}'.format(
-            config.SQLALCHEMY_DATABASE_URI))
-    db = create_engine(config.SQLALCHEMY_DATABASE_URI)
-    Session = sessionmaker(bind=db)
+        logging.info(
+            'attempting to connect to database at {}'.format(
+                config.SQLALCHEMY_DATABASE_URI))
+        db = create_engine(config.SQLALCHEMY_DATABASE_URI)
+        Session = sessionmaker(bind=db)
 
-    # Note: no additional config required due to webhook.py
-    # sending required values to telegram
-    bot = Bot(config.TELEGRAM_TOKEN)
+        # Note: no additional config required due to webhook.py
+        # sending required values to telegram
+        bot = Bot(config.TELEGRAM_TOKEN)
 
-    if __name__ == '__main__':
         # Bind worker to db and redis
         worker.bind(bot, Session, redis, State)
 
         with Connection(redis):
             rq_worker = Worker(map(Queue, listen))
             rq_worker.work()
-except redis_exceptions.ConnectionError:
-    logging.error('Unable to connect to redis')
-    sleep(10)
+    except redis_exceptions.ConnectionError:
+        logging.error('Unable to connect to redis')
+        sleep(10)
