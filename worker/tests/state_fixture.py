@@ -1,15 +1,13 @@
 import logging
 from transitions import Machine
-from telegram import ReplyKeyboardRemove
-
+from state_helpers import MachineHelpers
 import enums
-
 # Logging
 logging.basicConfig(level=logging.DEBUG)
 logging.getLogger('transitions').setLevel(logging.INFO)
 
 
-class State(Machine):
+class State(Machine, MachineHelpers):
     def __init__(self, bot):
         self.bot = bot
         self.language = 'EN'  # TODO
@@ -77,44 +75,3 @@ class State(Machine):
         message = event.kwargs.get('message').lower()
         user = event.kwargs.get('user')
         user.tolerance = message
-
-    # State actions
-    def default_on_enter(self, event):
-        assert event.transition.dest == self.state
-        chat_id = event.kwargs.get('chat_id')
-        destination = event.transition.dest.upper()
-        # Is there something to say?
-        try:
-            message = enums.MESSAGES[self.language][destination]
-            try:
-                keyboard = enums.KEYBOARDS[destination]
-            except KeyError:
-                keyboard = ReplyKeyboardRemove()
-
-            self.bot.send_message(
-                chat_id=chat_id,
-                text=message,
-                reply_markup=keyboard)
-            logging.info('Sent message')
-        except KeyError:
-            logging.info('Nothing to say')
-
-    def default_on_exit(self, event):
-        assert event.transition.source == self.state
-        chat_id = event.kwargs.get('chat_id')
-        source = event.transition.source.upper()
-        # Is there something to say?
-        try:
-            message = enums.MESSAGES[self.language]['{}_EXIT'.format(source)]
-            try:
-                keyboard = enums.KEYBOARDS['{}_EXIT'.format(source)]
-            except KeyError:
-                keyboard = ReplyKeyboardRemove()
-
-            self.bot.send_message(
-                chat_id=chat_id,
-                text=message,
-                reply_markup=keyboard)
-            logging.info('Sent message')
-        except KeyError:
-            logging.info('Nothing to say')
