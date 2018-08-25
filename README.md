@@ -30,12 +30,10 @@ Make sure you have docker installed. You do *not* need to create an account, jus
 
 Create your own bot on Telegram using botfather. Make sure to name it something like 1235-testbot so that people don't easily find it on random.
 
-## Tunneling data to local docker
-Using ngrok `./ngrok http 8433` and put the domain in `docker-compose.yml`.
-
 ## Running locally
 1. rename `env.sample` files to `.env` and fill in contents with bot tokens.
-2. `docker-compose up --build`
+2. Using ngrok `./ngrok http 8433` and put the bot tokens and ngrok domain in `docker-compose.yml`.
+4. `docker-compose up --build`
 
 
 # Testing
