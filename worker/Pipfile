@@ -21,6 +21,7 @@ redis = "*"
 rq = "*"
 transitions = "*"
 SQLAlchemy = "*"
+alembic = "*"
 
 [dev-packages]
 "autopep8" = "*"
