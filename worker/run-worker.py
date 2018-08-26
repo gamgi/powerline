@@ -56,6 +56,7 @@ if __name__ == '__main__':
 
         with Connection(redis):
             rq_worker = Worker(map(Queue, listen))
+            logging.getLogger('rq.worker').setLevel(logging.WARNING)
             rq_worker.work()
     except redis_exceptions.ConnectionError:
         logging.error('Unable to connect to redis')
