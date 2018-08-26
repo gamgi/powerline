@@ -13,9 +13,9 @@ logging.getLogger('transitions').setLevel(logging.INFO)
 
 class State(Machine, MachineHelpers, state_register.State, state_settings.State):
     def __init__(self, bot):
-
         self.bot = bot
         self.language = 'EN'  # TODO
+
         states = [
             {'name': 'unregistered'},
             {'name': 'idle'},
@@ -28,15 +28,10 @@ class State(Machine, MachineHelpers, state_register.State, state_settings.State)
             {'trigger': 'admin', 'source': '*', 'dest': 'admin_state'}
         ]
 
+        #super(State, self).__init__()
+
         # Append to Machine
-        try:
-            self.transitions += transitions
-        except BaseException:
-            self.transitions = transitions
-        try:
-            self.states += states
-        except BaseException:
-            self.states = states
+        self.machine_add_states_and_transitions(states, transitions)
 
         Machine.__init__(
             self,

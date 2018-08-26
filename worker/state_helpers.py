@@ -10,6 +10,16 @@ import enums
 class MachineHelpers:
     """Helper functions for extending transitions.Machine"""
 
+    def machine_add_states_and_transitions(self, states, transitions):
+        try:
+            self.transitions += transitions
+        except BaseException:
+            self.transitions = transitions
+        try:
+            self.states += states
+        except BaseException:
+            self.states = states
+
     def default_on_enter(self, event):
         """On entering STATE, checks whether enum STATE exists and sends it to user.
         Also provides a STATE keyboard if defined.

@@ -14,6 +14,7 @@ class State:
     """
 
     def __init__(self):
+        super().__init__()
         states = [
             {'name': 'register_1', 'on_enter': 'default_on_enter'},
             {'name': 'register_2', 'on_enter': 'default_on_enter'},
@@ -41,14 +42,7 @@ class State:
                        ]
 
         # Append to Machine
-        try:
-            self.transitions += transitions
-        except BaseException:
-            self.transitions = transitions
-        try:
-            self.states += states
-        except BaseException:
-            self.states = states
+        self.machine_add_states_and_transitions(states, transitions)
 
     # Conditions
     def is_proper_title(self, event):
