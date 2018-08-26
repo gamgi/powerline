@@ -13,12 +13,18 @@ from time import sleep
 from telegram import Bot
 
 import logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+if config.DEVELOPMENT:
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(name)-16.15s %(levelname)-7.7s %(module)-13.13s %(message)s')
+else:
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(name)-16.16s %(levelname)-7.7s %(message)s')
+
+logger = logging.getLogger(__name__)
+# logger.setLevel(logging.INFO)
 
 listen = ['high', 'default', 'low']
 
@@ -30,18 +36,18 @@ import worker
 
 if __name__ == '__main__':
     try:
-        logging.info(
+        logger.info(
             'attempting to connect to redis at {0} on port {1}'.format(
                 config.REDIS_HOST,
                 config.REDIS_PORT))
-        #logging.info('and the orignal is {}'.format(config.REDIS_URL))
+
         redis = Redis(
             host=config.REDIS_HOST,
             port=config.REDIS_PORT,
             db=0,
             password=config.REDIS_PASSWORD)
 
-        logging.info(
+        logger.info(
             'attempting to connect to database at {}'.format(
                 config.SQLALCHEMY_DATABASE_URI))
         db = create_engine(config.SQLALCHEMY_DATABASE_URI)
@@ -56,8 +62,15 @@ if __name__ == '__main__':
 
         with Connection(redis):
             rq_worker = Worker(map(Queue, listen))
+
+            # Set final logging things
             logging.getLogger('rq.worker').setLevel(logging.WARNING)
+            logging.getLogger('telegram*').setLevel(logging.WARNING)
+            # if not config.DEVELOPMENT:
+            #    logging.getLogger('transitions').setLevel(logging.WARNING)
+
+            logger.info('worker started')
             rq_worker.work()
     except redis_exceptions.ConnectionError:
-        logging.error('Unable to connect to redis')
+        logger.error('Unable to connect to redis')
         sleep(10)

@@ -6,9 +6,8 @@ import enums
 import state_register
 import state_settings
 
-# Logging
-logging.basicConfig(level=logging.DEBUG)
-logging.getLogger('transitions').setLevel(logging.INFO)
+# Logging state transitions for debugging
+# logging.getLogger('transitions').setLevel(logging.INFO)
 
 
 class State(Machine, MachineHelpers, state_register.State, state_settings.State):
@@ -28,8 +27,6 @@ class State(Machine, MachineHelpers, state_register.State, state_settings.State)
             {'trigger': 'admin', 'source': '*', 'dest': 'admin_state'}
         ]
 
-        #super(State, self).__init__()
-
         # Append to Machine
         self.machine_add_states_and_transitions(states, transitions)
 
@@ -41,7 +38,7 @@ class State(Machine, MachineHelpers, state_register.State, state_settings.State)
             finalize_event=self.update_user_state,
             initial='unregistered')
 
-    # Only for tests. State is normally saved at end of "last" transition.
+    # Only for tests. State is normally saved at end of "last" transition in worker.py.
     # For inspecting we need to save in-between
     def update_user_state(self, event):
         # On successful transition, update user state

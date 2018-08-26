@@ -13,11 +13,16 @@ from redis import exceptions as redis_exceptions
 from telegram import Update
 
 # Logging
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+if config.DEVELOPMENT:
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(name)-16.15s %(levelname)-7.7s %(module)-13.13s %(message)s')
+else:
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(name)-16.16s %(levelname)-7.7s %(message)s')
+
 logger = logging.getLogger()
-logger.setLevel(logging.INFO)
 
 
 try:
@@ -106,4 +111,6 @@ try:
 
     updater.idle()
 except telegram.error.InvalidToken as err:
+    logging.error(err)
+except telegram.error.TimedOut as err:
     logging.error(err)

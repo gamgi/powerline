@@ -1,5 +1,4 @@
 import logging
-import logging
 from transitions import Machine
 from state_helpers import MachineHelpers
 
@@ -8,8 +7,7 @@ import state_register
 import state_settings
 
 # Logging
-logging.basicConfig(level=logging.DEBUG)
-logging.getLogger('transitions').setLevel(logging.INFO)
+#logger = logging.getLogger(__name__)
 
 
 class State(Machine, MachineHelpers, state_register.State, state_settings.State):
@@ -36,7 +34,6 @@ class State(Machine, MachineHelpers, state_register.State, state_settings.State)
             self.states += states
         except BaseException:
             self.states = states
-        logging.error(self.transitions)
         Machine.__init__(
             self,
             states=self.states,

@@ -3,8 +3,7 @@ from transitions import Machine
 from state_helpers import MachineHelpers
 import enums
 
-logging.basicConfig(level=logging.DEBUG)
-logging.getLogger('transitions').setLevel(logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class State:
@@ -48,15 +47,15 @@ class State:
     def is_proper_title(self, event):
         message = event.kwargs.get('message').lower()
         if message not in ['mr', 'mrs']:
-            logging.info('not valid')
+            logger.debug('title not valid: {}'.format(message))
             return False
-        logging.info('valid')
         return True
 
     def is_proper_age(self, event):
         message = event.kwargs.get('message').lower()
         chat_id = event.kwargs.get('chat_id')
         if message not in list(str(range(1, 5))) + ['n']:
+            logger.debug('age not valid: {}'.format(message))
             self.bot.send_message(chat_id=chat_id, text="Sorry that's not a proper age")
             return False
         return True

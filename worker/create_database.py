@@ -10,10 +10,10 @@ def create_database(uri='postgres://postgres', db_engine=None):
     """
     if db_engine is None:
         db_engine = create_engine(uri)
-    # if config.DEVELOPMENT:
-    #    print('deleteing old database because DEVELOPMENT=1')
+    if config.DEVELOPMENT:
+        print('...deleteing old database because DEVELOPMENT=1')
         # Delete schem
-    Base.metadata.drop_all(db_engine)
+        Base.metadata.drop_all(db_engine)
     Base.metadata.create_all(bind=db_engine)
 
 

@@ -1,10 +1,6 @@
-import logging
 from transitions import Machine
 from state_helpers import MachineHelpers
 import enums
-
-logging.basicConfig(level=logging.DEBUG)
-logging.getLogger('transitions').setLevel(logging.INFO)
 
 
 class State:

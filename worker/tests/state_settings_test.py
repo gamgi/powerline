@@ -13,7 +13,7 @@ from sqlalchemy.orm import sessionmaker
 from create_fake_database import fake_database, create_database_fixture
 
 # Logging
-import logging
+#import logging
 # Enable following line to echo database queries
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
@@ -33,7 +33,6 @@ def sent_text(mock):
 def user():
     # force_instant_defaults()
     user = models.User()
-    logging.info(user.state)
     return user
 
 

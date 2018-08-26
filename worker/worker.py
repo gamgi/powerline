@@ -1,3 +1,4 @@
+import logging
 # Telegram API
 import telegram.error
 # State machine
@@ -11,14 +12,11 @@ import models
 # Other
 import enums
 # Logging
-import logging
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger("worker.internal")
-# logger = logging.getLogger('rq.worker')
-logger.setLevel(logging.INFO)
 import helpers
+
+logger = logging.getLogger(__name__)
+if config.DEVELOPMENT:
+    logger.setLevel(logging.DEBUG)
 
 
 class UserNotFoundError(LookupError):
@@ -31,10 +29,11 @@ class Worker:
         self.redis = redis
         self.Session = Session
         self.state = State(self.bot)
-        logging.info('Worker bound')
+        logger.debug('worker bound')
 
     def handle_command_start(self, user_id, update, session):
-        logging.info("command_start ({})".format(user_id))
+        logger.info('new user {}'.format(user_id))
+        logger.debug("command_start ({})".format(user_id))
         chat_id = update.message.chat_id
         user = self.add_user(
             session,
@@ -46,8 +45,7 @@ class Worker:
             # Save user on succesful state change
             user.state = self.state.state
             self.save_user(session, user)
-        else:
-            logging.info('no change')
+            logger.debug('user saved')
 
     def handle_command(self, user_id, update):
         session = self.Session()
@@ -59,14 +57,13 @@ class Worker:
             try:
                 user = self.get_user(session, user_id)
             except UserNotFoundError:
-                logging.info('user {} not found'.format(user_id))
                 self.handle_command_start(user_id, update, session)
                 return
 
             # Load user state
             self.state.set_state(user.state)
 
-            logging.info("command {} with args {} ({})".format(command, args, user_id))
+            logger.debug("command {} with args {} ({})".format(command, args, user_id))
             try:
                 success = self.state.trigger(
                     command,
@@ -78,18 +75,17 @@ class Worker:
                     # Save user on succesful state change
                     user.state = self.state.state
                     self.save_user(session, user)
-                else:
-                    logging.info('no change')
+                    logger.debug('user saved')
             except (AttributeError, transitions.core.MachineError) as err:  # transition does not exist
-                logging.error(
+                logger.error(
                     "Attempted transition '{}' from state '{}' for user {} failed".format(
                         command, self.state.state, user_id))
-                logging.error(err)
+                logger.error(err)
         except SQLAlchemyError as e:
             session.rollback()
             raise
         except OperationalError as err:
-            logging.error("Unable to connect to database: {}".format(err))
+            logger.error("Unable to connect to database: {}".format(err))
         finally:
             session.close()
 
@@ -101,13 +97,13 @@ class Worker:
             try:
                 user = self.get_user(session, user_id)
             except UserNotFoundError:
-                logging.info('user {} not found'.format(user_id))
+                logger.info('user {} not found'.format(user_id))
                 self.handle_command_start(user_id, update, session)
                 return
             # Load user state
             self.state.set_state(user.state)
 
-            logging.info('message "{}\" ({})'.format(message, user_id))
+            logger.debug('message "{}\" ({})'.format(message, user_id))
             try:
                 success = self.state.trigger(
                     "message",
@@ -119,18 +115,17 @@ class Worker:
                     # Save user on succesful state change
                     user.state = self.state.state
                     self.save_user(session, user)
-                else:
-                    logging.info('no change')
+                    logger.debug('user saved')
             except (AttributeError, transitions.core.MachineError) as err:  # transition does not exist
-                logging.error(
+                logger.error(
                     "Attempted transition '{}' from state '{}' for user {} failed".format(
                         'message', self.state.state, user_id))
-                logging.error(err)
+                logger.error(err)
         except SQLAlchemyError as e:
             session.rollback()
             raise
         except OperationalError as err:
-            logging.error("Unable to connect to database: {}".format(err))
+            logger.error("Unable to connect to database: {}".format(err))
         finally:
             session.close()
 
