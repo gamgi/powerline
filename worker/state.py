@@ -27,19 +27,23 @@ class State(Machine, MachineHelpers, state_register.State):
         ]
 
         # Append to Machine
-        if not self.transitions:
-            self.transitions = transitions
-        else:
-            self.transitions.append(transitions)
-
-        if not self.states:
-            self.states = states
-        else:
-            self.states.append(states)
+        self.transitions.append(transitions)
+        self.states.append(states)
 
         Machine.__init__(
             self,
             states=self.states,
             transitions=self.transitions
             send_event=True,
+            finalize_event=update_user_state
             initial='unregistered')
+
+    """
+    # Only for tests
+    def update_user_state(self, event):
+        # On successful transition, update user state
+        if event.result:
+            user = event.kwargs.get('user')
+            assert user is not None
+            user.state = event.transition.dest
+    """

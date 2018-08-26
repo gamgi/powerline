@@ -23,7 +23,8 @@ class State(Machine, MachineHelpers, state_register.State):
         # Transitions
         transitions = [
             {'trigger': 'reset', 'source': '*', 'dest': 'unregistered'},
-            {'trigger': 'dummy', 'source': '*', 'dest': 'dummy_state'}
+            {'trigger': 'dummy', 'source': '*', 'dest': 'dummy_state'},
+            {'trigger': 'admin', 'source': '*', 'dest': 'admin_state'}
         ]
 
         # Append to Machine
@@ -41,4 +42,14 @@ class State(Machine, MachineHelpers, state_register.State):
             states=self.states,
             transitions=self.transitions,
             send_event=True,
+            finalize_event=self.update_user_state,
             initial='unregistered')
+
+    # Only for tests. State is normally saved at end of "last" transition.
+    # For inspecting we need to save in-between
+    def update_user_state(self, event):
+        # On successful transition, update user state
+        if event.result:
+            user = event.kwargs.get('user')
+            assert user is not None
+            user.state = event.transition.dest

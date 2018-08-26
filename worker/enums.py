@@ -11,10 +11,10 @@ MESSAGES_EN = dict(
 
 MESSAGES_SE = dict(
     START_HELLO_MESSAGE_SE="Hej. Jag kanner en bot",
-    REGISTER_1_SE="Vad ar din tittel?",
-    REGISTER_2_SE="Vad ar din alder?",
-    REGISTER_3_SE="Hur mycket vill du hora av oss?",
-    REGISTER_3_SE_EXIT="Tack! Vi hör av oss snart.. Vi vill gärna veta om du har något att tala om."
+    REGISTER_1="Vad ar din tittel?",
+    REGISTER_2="Vad ar din alder?",
+    REGISTER_3="Hur mycket vill du hora av oss?",
+    REGISTER_3_EXIT="Tack! Vi hör av oss snart.. Vi vill gärna veta om du har något att tala om."
 )
 
 MESSAGES = {'EN': MESSAGES_EN, 'SE': MESSAGES_SE}

@@ -41,7 +41,7 @@ class Worker:
             user_id,
             update.message.chat.username,
             update.message.chat.first_name)
-        success = self.state.trigger("start", user_id=user_id, chat_id=chat_id)
+        success = self.state.trigger("start", user_id=user_id, chat_id=chat_id, user=user)
         if success:
             # Save user on succesful state change
             user.state = self.state.state
