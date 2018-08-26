@@ -4,13 +4,14 @@ from state_helpers import MachineHelpers
 
 import enums
 import state_register
+import state_settings
 
 # Logging
 logging.basicConfig(level=logging.DEBUG)
 logging.getLogger('transitions').setLevel(logging.INFO)
 
 
-class State(Machine, MachineHelpers, state_register.State):
+class State(Machine, MachineHelpers, state_register.State, state_settings.State):
     def __init__(self, bot):
 
         self.bot = bot

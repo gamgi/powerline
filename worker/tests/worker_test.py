@@ -132,6 +132,9 @@ class TestHandleCommand:
 
 
 class TestTransitions:
+    """Note: state machines should be tested separately in their own files (see teste_register_1.py).
+    This is an integration test for the WORKER, not the state.
+    """
 
     def test_register_flow(self, worker, bot, inspect_session):
         update = td.update_for_command(bot, "start")
@@ -180,7 +183,7 @@ class TestTransitions:
         assert worker.state.state == 'idle'
         inspect_session.refresh(user)
         assert user.state == 'idle'
-        assert user.tolerance == 'normal'
+        assert user.subscription == 'normal'
 
     def test_invalid_transition(self, worker, bot, inspect_session):
         # worker.state.set_state('unregistered')

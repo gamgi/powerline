@@ -21,14 +21,24 @@ class State:
         ]
 
         # Transitions
-        transitions = [
-            {'trigger': 'start', 'source': 'unregistered', 'dest': 'register_1'},
-            {'trigger': 'message', 'source': 'register_1', 'dest': 'register_2',
-                'conditions': 'is_proper_title', 'before': 'set_user_title'},
-            {'trigger': 'message', 'source': 'register_2', 'dest': 'register_3',
-                'conditions': 'is_proper_age', 'before': 'set_user_age'},
-            {'trigger': 'message', 'source': 'register_3', 'dest': 'idle', 'before': 'set_user_tolerance'},
-        ]
+        transitions = [{'trigger': 'start',
+                        'source': 'unregistered',
+                        'dest': 'register_1'},
+                       {'trigger': 'message',
+                        'source': 'register_1',
+                        'dest': 'register_2',
+                        'conditions': 'is_proper_title',
+                        'before': 'set_user_title'},
+                       {'trigger': 'message',
+                        'source': 'register_2',
+                        'dest': 'register_3',
+                        'conditions': 'is_proper_age',
+                        'before': 'set_user_age'},
+                       {'trigger': 'message',
+                        'source': 'register_3',
+                        'dest': 'idle',
+                        'before': 'set_user_subscription'},
+                       ]
 
         # Append to Machine
         try:
@@ -69,7 +79,7 @@ class State:
         user.age = message
     # TODO make the set and is_proper to a class
 
-    def set_user_tolerance(self, event):
+    def set_user_subscription(self, event):
         message = event.kwargs.get('message').lower()
         user = event.kwargs.get('user')
-        user.tolerance = message
+        user.subscription = message

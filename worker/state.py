@@ -5,13 +5,14 @@ from state_helpers import MachineHelpers
 
 import enums
 import state_register
+import state_settings
 
 # Logging
 logging.basicConfig(level=logging.DEBUG)
 logging.getLogger('transitions').setLevel(logging.INFO)
 
 
-class State(Machine, MachineHelpers, state_register.State):
+class State(Machine, MachineHelpers, state_register.State, state_settings.State):
     def __init__(self, bot):
         self.bot = bot
         self.language = 'EN'  # TODO
@@ -27,15 +28,20 @@ class State(Machine, MachineHelpers, state_register.State):
         ]
 
         # Append to Machine
-        self.transitions.append(transitions)
-        self.states.append(states)
-
+        try:
+            self.transitions += transitions
+        except BaseException:
+            self.transitions = transitions
+        try:
+            self.states += states
+        except BaseException:
+            self.states = states
+        logging.error(self.transitions)
         Machine.__init__(
             self,
             states=self.states,
-            transitions=self.transitions
+            transitions=self.transitions,
             send_event=True,
-            finalize_event=update_user_state
             initial='unregistered')
 
     """
