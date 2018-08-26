@@ -7,7 +7,7 @@ MESSAGES_EN = dict(
     REGISTER_2="What is your age?",
     REGISTER_3="How much would you like us to keep in touch?",
     REGISTER_3_EXIT="Thanks! We'll be in touch. Don't hesitate to message us.",
-    SETTINGS_MENU="*Settings*\nChange settings below, or go /back\n* /subscription Change how often we contact you\n* /title Change your title\n* /delete Delete your account"
+    SETTINGS_MENU="*Settings*\nChange settings below, or go /back\n- /subscription Change how often we contact you\n- /title Change your title\n- /delete Delete your account"
 )
 
 MESSAGES_SE = dict(

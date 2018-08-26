@@ -38,7 +38,8 @@ class MachineHelpers:
             self.bot.send_message(
                 chat_id=chat_id,
                 text=message,
-                reply_markup=keyboard)
+                reply_markup=keyboard,
+                parse_mode='Markdown')
             logging.info('Sent message')
         except KeyError:
             logging.info('Nothing to say')
@@ -61,7 +62,8 @@ class MachineHelpers:
             self.bot.send_message(
                 chat_id=chat_id,
                 text=message,
-                reply_markup=keyboard)
+                reply_markup=keyboard,
+                parse_mode='Markdown')
             logging.info('Sent message')
         except KeyError:
             logging.info('Nothing to say')
