@@ -17,7 +17,7 @@ REDIS_PASSWORD = url.password
 # Docker config is set to modify DATABASE_URL
 SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL") or os.getenv(
     "SQLALCHEMY_DATABASE_URI",
-    "postgresql://localhost:5432")
+    "postgresql://localhost:5432/postgres")
 # From local env
 DEVELOPMENT = int(os.getenv("DEVELOPMENT", 0))
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")

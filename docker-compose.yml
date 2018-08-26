@@ -29,7 +29,7 @@ services:
     volumes:
      - ./worker:/worker
     environment:
-     - "DATABASE_URL=postgres://postgres:@postgres"
+     - "DATABASE_URL=postgres://postgres:@postgres/postgres"
      - "DEVELOPMENT=1"
     depends_on:
       - redis

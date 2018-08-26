@@ -11,4 +11,5 @@ RUN useradd --create-home --shell /bin/bash webuser
 USER webuser
 
 # CMD ["python", "run-worker.py"]
+#CMD bash -c "alembic upgrade head && python run-worker.py"
 CMD bash -c "python create_database.py && python run-worker.py"
