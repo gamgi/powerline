@@ -46,7 +46,7 @@ def run_migrations_offline():
     """
     # url = config.get_main_option("sqlalchemy.url")
     url = app_config.SQLALCHEMY_DATABASE_URI
-    print('Connecting to '+url)
+    print('Connecting to ' + url)
     context.configure(
         url=url, target_metadata=target_metadata, literal_binds=True)
 
@@ -68,7 +68,7 @@ def run_migrations_online():
         poolclass=pool.NullPool)
     """
     uri = app_config.SQLALCHEMY_DATABASE_URI
-    print('Connecting to '+uri)
+    print('Connecting to ' + uri)
     connectable = create_engine(uri, poolclass=pool.NullPool)
 
     with connectable.connect() as connection:
@@ -79,6 +79,7 @@ def run_migrations_online():
 
         with context.begin_transaction():
             context.run_migrations()
+
 
 if context.is_offline_mode():
     run_migrations_offline()

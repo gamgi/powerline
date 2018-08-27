@@ -11,6 +11,7 @@ class MachineHelpers:
     """Helper functions for extending transitions.Machine"""
 
     def machine_add_states_and_transitions(self, states, transitions):
+        """The state machine is using multiple inheritance. This helps combining the states"""
         try:
             self.transitions += transitions
         except BaseException:
