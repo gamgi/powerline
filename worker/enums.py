@@ -42,3 +42,4 @@ def alias_of_state(alias, original):
 
 # Aliases
 alias_of_state('SETTINGS_REGISTER_3', 'REGISTER_3')
+alias_of_state('SETTINGS_REGISTER_1', 'REGISTER_1')

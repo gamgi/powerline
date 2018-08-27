@@ -1,3 +1,4 @@
+import logging
 import sys
 import os.path
 # Testing
@@ -12,8 +13,11 @@ from sqlalchemy.orm import sessionmaker
 #from sqlalchemy_utils import force_instant_defaults
 from create_fake_database import fake_database, create_database_fixture
 
+
 # Logging
 #import logging
+logger = logging.getLogger(__name__)
+# logger.setLevel(logging.DEBUG)
 # Enable following line to echo database queries
 # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
@@ -72,6 +76,26 @@ class TestStateSettings:
         # Asserts
         assert state.state == 'settings_menu'
         bot.send_message.assert_called()
+
+    def test_settings_register_1(self, state, user, bot):
+        state.set_state('settings_menu')
+        state.trigger('title', user=user)
+
+        # Asserts
+        assert state.state == 'settings_register_1'
+        bot.send_message.assert_called()
+
+        state.trigger('message', message="badvalue")
+
+        # Asserts
+        assert state.state == 'settings_register_1'
+        bot.send_message.assert_called()
+
+        state.trigger('message', message="mr", user=user)
+
+        # Asserts
+        assert state.state == 'idle'
+        assert user.title == 'mr'
 
     def test_settings_register_3(self, state, user, bot):
         state.set_state('settings_menu')
