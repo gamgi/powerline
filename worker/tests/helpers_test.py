@@ -1,6 +1,9 @@
 import sys
 import os.path
 
+from telegram import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
+import pytest
+
 # A hack to make imports work in the test target
 sys.path.append(os.path.join(os.path.dirname(__file__), os.pardir))
 
@@ -99,3 +102,29 @@ class TestGetMessageFromUpdate:
 
         # Asserts
         assert message == "/start one two three"
+
+
+@pytest.mark.state_helpers
+class TestGetKeyboardOptions:
+    def test_with_simple_keyboard(self):
+        keyboard = ReplyKeyboardMarkup(
+            [[KeyboardButton('option 1'), KeyboardButton('option 2')]])
+        options = helpers.get_keyboard_options(keyboard)
+
+        # Asserts
+        assert options == ['option 1', 'option 2']
+
+    def test_with_multirow_keyboard(self):
+        keyboard = ReplyKeyboardMarkup([[KeyboardButton('option 1'), KeyboardButton('option 2')], [
+                                       KeyboardButton('option 3'), KeyboardButton('option 4')]])
+        options = helpers.get_keyboard_options(keyboard)
+
+        # Asserts
+        assert options == ['option 1', 'option 2', 'option 3', 'option 4']
+
+    def test_with_empty_keyboard(self):
+        keyboard = ReplyKeyboardMarkup([])
+        options = helpers.get_keyboard_options(keyboard)
+
+        # Asserts
+        assert options == []

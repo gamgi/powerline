@@ -1,3 +1,6 @@
+from telegram import KeyboardButton
+
+
 def get_command_from_update(update):
     try:
         message = update.message.text
@@ -40,3 +43,10 @@ def get_message_from_update(update):
         return update.message.text
     except BaseException:
         return None
+
+
+def get_keyboard_options(keyboard):
+    flat_list = [item for row in keyboard.keyboard for item in row]
+    options = [key.text if isinstance(key, KeyboardButton) else key for key in flat_list]
+
+    return options
