@@ -61,7 +61,17 @@ class Worker:
                 return
 
             # Load user state
-            self.state.set_state(user.state)
+            try:
+                self.state.set_state(user.state)
+            except ValueError as err:
+                # User is in a state that no longer exists
+                logger.error(
+                    'user {} was in state {} that no loger exists'.format(
+                        user_id, user.state))
+                user.state = 'idle'
+                self.save_user(session, user)
+                self.state.set_state(user.state)
+                return
 
             logger.debug("command {} with args {} ({})".format(command, args, user_id))
             try:
@@ -101,7 +111,15 @@ class Worker:
                 self.handle_command_start(user_id, update, session)
                 return
             # Load user state
-            self.state.set_state(user.state)
+            try:
+                self.state.set_state(user.state)
+            except ValueError as err:
+                # User is in a state that no longer exists
+                self.state.set_state('idle')
+                logger.error(
+                    'user {} was in state {} that no loger exists'.format(
+                        user_id, user.state))
+                return
 
             logger.debug('message "{}\" ({})'.format(message, user_id))
             try:

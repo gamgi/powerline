@@ -102,7 +102,6 @@ class TestHandleCommandStart:
         assert inspect_session.query(models.User).count() == 1
         assert worker.state.state == 'register_1'
 
-    @pytest.mark.derp
     def test_with_new_user(self, Session, inspect_session, worker, bot):
         user_id = chat_id = 99
         update = td.update_for_command(bot, "start", chat_id=chat_id, user_id=user_id)
@@ -131,6 +130,7 @@ class TestHandleCommand:
         assert worker.state.state == 'dummy_state'
 
 
+@pytest.mark.transitions
 class TestTransitions:
     """Note: state machines should be tested separately in their own files (see teste_register_1.py).
     This is an integration test for the WORKER, not the state.
@@ -196,6 +196,21 @@ class TestTransitions:
         # Assert
         assert worker.state.state == 'unregistered'
         assert inspect_session.query(models.User).get(user_id).state == 'unregistered'
+
+    def test_user_in_old_state(self, inspect_session, worker):
+        user_id = 123
+        # User in a state that no longer exists
+        user = inspect_session.query(models.User).get(user_id)
+        user.state = 'nonexisting'
+        inspect_session.add(user)
+        inspect_session.commit()
+        update = td.update_for_command(bot, "start", user_id=123)
+        worker.handle_command(user_id, update)
+
+        # Assert
+        assert worker.state.state == 'idle'
+        inspect_session.refresh(user)
+        assert user.state == 'idle'
 
     def test_load_existing_user_state(self):
         pass
