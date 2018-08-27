@@ -52,23 +52,64 @@ def state(bot, request):
 
 @pytest.mark.state_settings
 class TestStateSettings:
-    def test_settings(self, state, user, bot):
+    def test_settings_menu(self, state, user, bot):
         state.set_state('idle')
-        state.trigger('settings', args=[], user=user)
+        state.trigger('settings', user=user)
+
+        # Asserts
+        assert state.state == 'settings_menu'
+        bot.send_message.assert_called()
+
+        state.trigger('back', user=user)
+
+        # Asserts
+        assert state.state == 'idle'
+
+    def test_settings_menu(self, state, user, bot):
+        state.set_state('idle')
+        state.trigger('settings', args=['these', 'wont', 'matter'], user=user)
 
         # Asserts
         assert state.state == 'settings_menu'
         bot.send_message.assert_called()
 
     def test_settings_register_3(self, state, user, bot):
-        state.set_state('settings_register_3')
+        state.set_state('settings_menu')
+        state.trigger('subscription', user=user)
+
+        # Asserts
+        assert state.state == 'settings_register_3'
+        bot.send_message.assert_called()
+
         state.trigger('message', message="badvalue")
 
         # Asserts
         assert state.state == 'settings_register_3'
         bot.send_message.assert_called()
 
-        state.trigger('message', message="normal", user=user)
+        state.trigger('message', message="a lot", user=user)
 
         # Asserts
         assert state.state == 'idle'
+        assert user.subscription == 'a lot'
+
+    def test_settings_delete(self, state, user, bot):
+        state.set_state('settings_menu')
+        state.trigger('delete', user=user)
+
+        # Asserts
+        assert state.state == 'settings_delete'
+        bot.send_message.assert_called()
+
+        state.trigger('back', user=user)
+        state.trigger('settings', user=user)
+
+        # Asserts
+        assert state.state == 'settings_menu'
+
+        state.trigger('delete', user=user)
+        state.trigger('yesimsuredelete', user=user)
+
+        # Asserts
+        assert state.state == 'unregistered'
+        # TODO actually delete

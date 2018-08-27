@@ -23,24 +23,26 @@ class State:
         ]
 
         # Transitions
-        transitions = [{'trigger': 'start',
+        transitions = [
+            # From unregistered
+            {'trigger': 'start',
                         'source': 'unregistered',
                         'dest': 'register_1'},
-                       {'trigger': 'message',
+            {'trigger': 'message',
                         'source': 'register_1',
                         'dest': 'register_2',
                         'conditions': 'is_proper_title',
                         'before': 'set_user_title'},
-                       {'trigger': 'message',
+            {'trigger': 'message',
                         'source': 'register_2',
                         'dest': 'register_3',
                         'conditions': 'is_proper_age',
                         'before': 'set_user_age'},
-                       {'trigger': 'message',
+            {'trigger': 'message',
                         'source': 'register_3',
                         'dest': 'idle',
                         'before': 'set_user_subscription'},
-                       ]
+        ]
 
         # Append to Machine
         self.machine_add_states_and_transitions(states, transitions)
