@@ -31,16 +31,17 @@ class State:
             {'trigger': 'message',
                         'source': 'register_1',
                         'dest': 'register_2',
-                        'conditions': 'is_proper_title',
+                        'conditions': 'default_is_proper',
                         'before': 'set_user_title'},
             {'trigger': 'message',
                         'source': 'register_2',
                         'dest': 'register_3',
-                        'conditions': 'is_proper_age',
+                        'conditions': 'default_is_proper',
                         'before': 'set_user_age'},
             {'trigger': 'message',
                         'source': 'register_3',
                         'dest': 'idle',
+                        'conditions': 'default_is_proper',
                         'before': 'set_user_subscription'},
         ]
 
@@ -48,6 +49,7 @@ class State:
         self.machine_add_states_and_transitions(states, transitions)
 
     # Conditions
+    '''
     def is_proper_title(self, event):
         message = event.kwargs.get('message').lower()
         if message not in ['mr', 'mrs']:
@@ -74,6 +76,7 @@ class State:
                 text="Sorry that's not a proper answer")
             return False
         return True
+    '''
 
     # Transition actions
     def set_user_title(self, event):

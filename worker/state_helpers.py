@@ -3,8 +3,9 @@ import logging
 from telegram import ReplyKeyboardRemove
 
 import enums
+import helpers
 
-# General state actions for a transitions.Machine
+logger = logging.getLogger(__name__)
 
 
 class MachineHelpers:
@@ -41,9 +42,9 @@ class MachineHelpers:
                 text=message,
                 reply_markup=keyboard,
                 parse_mode='Markdown')
-            logging.info('Sent message')
+            logger.info('Sent message')
         except KeyError:
-            logging.info('Nothing to say')
+            logger.info('Nothing to say')
 
     def default_on_exit(self, event):
         """On exiting STATE, chechs whether enum STATE_EXIT exists and sends it to user.
@@ -65,6 +66,27 @@ class MachineHelpers:
                 text=message,
                 reply_markup=keyboard,
                 parse_mode='Markdown')
-            logging.info('Sent message')
+            logger.info('Sent message')
         except KeyError:
-            logging.info('Nothing to say')
+            logger.info('Nothing to say')
+
+    def default_is_proper(self, event):
+        """on call, checks if message value is in the keyboard button options for source state"""
+        assert event.transition.source == self.state
+        chat_id = event.kwargs.get('chat_id')
+        message = event.kwargs.get('message').lower()
+        source = event.transition.source.upper()
+        try:
+            options = helpers.get_keyboard_options(enums.KEYBOARDS[source])
+            if message in options:
+                logger.info('valid: {}'.format(message))
+                return True
+            else:
+                logger.info('not valid: {}'.format(message))
+                self.bot.send_message(
+                    chat_id=chat_id,
+                    text="Sorry that's not a proper answer")
+                return False
+
+        except KeyError:
+            logger.exception('default_is_proper called for state with no keyboard')

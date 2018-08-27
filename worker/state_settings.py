@@ -29,11 +29,11 @@ class State:
             {'trigger': 'subscription', 'source': [
                 'idle', 'settings_menu'], 'dest': 'settings_register_3'},
             {'trigger': 'message', 'source': 'settings_register_3', 'dest': 'idle',
-                'conditions': 'is_proper_subscription', 'before': 'set_user_subscription'},
+                'conditions': 'default_is_proper', 'before': 'set_user_subscription'},
             {'trigger': 'title', 'source': 'settings_menu', 'dest': 'settings_title'},
             # Title
             {'trigger': 'message', 'source': 'settings_title', 'dest': 'idle',
-                'conditions': 'is_proper_title', 'before': 'set_user_age'},
+                'conditions': 'default_is_proper', 'before': 'set_user_title'},
             # Delete
             {'trigger': 'delete', 'source': 'settings_menu', 'dest': 'settings_delete'},
             {'trigger': 'back', 'source': 'settings_delete', 'dest': 'idle'},
