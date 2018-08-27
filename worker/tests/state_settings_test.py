@@ -50,12 +50,25 @@ def state(bot, request):
     return state
 
 
-@pytest.mark.state_register
+@pytest.mark.state_settings
 class TestStateSettings:
     def test_settings(self, state, user, bot):
         state.set_state('idle')
-        state.trigger('settings', user_id=123, chat_id=123, args=[], user=user)
+        state.trigger('settings', args=[], user=user)
 
         # Asserts
         assert state.state == 'settings_menu'
         bot.send_message.assert_called()
+
+    def test_settings_subscription(self, state, user, bot):
+        state.set_state('settings_subscription')
+        state.trigger('message', message="badvalue")
+
+        # Asserts
+        assert state.state == 'settings_subscription'
+        bot.send_message.assert_called()
+
+        state.trigger('message', message="normal", user=user)
+
+        # Asserts
+        assert state.state == 'idle'

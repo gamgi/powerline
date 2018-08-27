@@ -21,8 +21,8 @@ class State:
         transitions = [
             {'trigger': 'settings', 'source': 'idle', 'dest': 'settings_menu'},
             {'trigger': 'subscription', 'source': 'settings_menu', 'dest': 'settings_subscription'},
-            {'trigger': 'message', 'source': 'settings_subscrption', 'dest': 'idle',
-                'conditions': 'is_proper_subscription', 'before': 'set_user_age'},
+            {'trigger': 'message', 'source': 'settings_subscription', 'dest': 'idle',
+                'conditions': 'is_proper_subscription', 'before': 'set_user_subscription'},
             {'trigger': 'title', 'source': 'settings_menu', 'dest': 'settings_title'},
             {'trigger': 'message', 'source': 'settings_title', 'dest': 'idle',
                 'conditions': 'is_proper_title', 'before': 'set_user_age'},

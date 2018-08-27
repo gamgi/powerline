@@ -1,7 +1,9 @@
 import logging
 from transitions import Machine
-from state_helpers import MachineHelpers
 import enums
+
+import helpers
+from state_helpers import MachineHelpers
 
 logger = logging.getLogger(__name__)
 
@@ -60,19 +62,33 @@ class State:
             return False
         return True
 
+    def is_proper_subscription(self, event):
+        message = event.kwargs.get('message').lower()
+        chat_id = event.kwargs.get('chat_id')
+        if message not in helpers.get_keyboard_options(enums.KEYBOARDS['REGISTER_3']):
+            logger.debug('subscription not valid: {}'.format(message))
+            self.bot.send_message(
+                chat_id=chat_id,
+                text="Sorry that's not a proper answer")
+            return False
+        return True
+
     # Transition actions
     def set_user_title(self, event):
         message = event.kwargs.get('message').lower()
         user = event.kwargs.get('user')
+        assert user is not None
         user.title = message
 
     def set_user_age(self, event):
         message = event.kwargs.get('message').lower()
         user = event.kwargs.get('user')
+        assert user is not None
         user.age = message
     # TODO make the set and is_proper to a class
 
     def set_user_subscription(self, event):
         message = event.kwargs.get('message').lower()
         user = event.kwargs.get('user')
+        assert user is not None
         user.subscription = message
