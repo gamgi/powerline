@@ -60,12 +60,12 @@ class TestStateSettings:
         assert state.state == 'settings_menu'
         bot.send_message.assert_called()
 
-    def test_settings_subscription(self, state, user, bot):
-        state.set_state('settings_subscription')
+    def test_settings_register_3(self, state, user, bot):
+        state.set_state('settings_register_3')
         state.trigger('message', message="badvalue")
 
         # Asserts
-        assert state.state == 'settings_subscription'
+        assert state.state == 'settings_register_3'
         bot.send_message.assert_called()
 
         state.trigger('message', message="normal", user=user)

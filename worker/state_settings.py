@@ -13,15 +13,15 @@ class State:
         super().__init__()
         states = [
             {'name': 'settings_menu', 'on_enter': 'default_on_enter'},
-            {'name': 'settings_subscription', 'on_enter': 'default_on_enter'},
+            {'name': 'settings_register_3', 'on_enter': 'default_on_enter', 'on_exit': 'default_on_exit'},
             {'name': 'settings_title', 'on_enter': 'default_on_enter'}
         ]
 
         # Transitions
         transitions = [
             {'trigger': 'settings', 'source': 'idle', 'dest': 'settings_menu'},
-            {'trigger': 'subscription', 'source': 'settings_menu', 'dest': 'settings_subscription'},
-            {'trigger': 'message', 'source': 'settings_subscription', 'dest': 'idle',
+            {'trigger': 'subscription', 'source': ['idle', 'settings_menu'], 'dest': 'settings_register_3'},
+            {'trigger': 'message', 'source': 'settings_register_3', 'dest': 'idle',
                 'conditions': 'is_proper_subscription', 'before': 'set_user_subscription'},
             {'trigger': 'title', 'source': 'settings_menu', 'dest': 'settings_title'},
             {'trigger': 'message', 'source': 'settings_title', 'dest': 'idle',

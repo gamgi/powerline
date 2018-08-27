@@ -1,5 +1,17 @@
 from telegram import ReplyKeyboardMarkup, KeyboardButton
 
+KEYBOARDS = dict(
+    REGISTER_1=ReplyKeyboardMarkup(
+        [[KeyboardButton('mr'), KeyboardButton('mrs')]],
+        one_time_keyboard=True),
+    REGISTER_2=ReplyKeyboardMarkup(
+        [[KeyboardButton('1'), KeyboardButton('2')]],
+        one_time_keyboard=True),
+    REGISTER_3=ReplyKeyboardMarkup(
+        [[KeyboardButton('a little'), KeyboardButton(
+            'normal'), KeyboardButton('a lot')]],
+        one_time_keyboard=True)
+)
 
 MESSAGES_EN = dict(
     START_HELLO_MESSAGE="Hi, <description and some disclaimer>",
@@ -21,15 +33,11 @@ MESSAGES_SE = dict(
 MESSAGES = {'EN': MESSAGES_EN, 'SE': MESSAGES_SE}
 
 
-KEYBOARDS = dict(
-    REGISTER_1=ReplyKeyboardMarkup(
-        [[KeyboardButton('mr'), KeyboardButton('mrs')]],
-        one_time_keyboard=True),
-    REGISTER_2=ReplyKeyboardMarkup(
-        [[KeyboardButton('1'), KeyboardButton('2')]],
-        one_time_keyboard=True),
-    REGISTER_3=ReplyKeyboardMarkup(
-        [[KeyboardButton('a little'), KeyboardButton(
-            'normal'), KeyboardButton('a lot')]],
-        one_time_keyboard=True)
-)
+def alias_of_state(alias, original):
+    for lang in MESSAGES:
+        MESSAGES[lang][alias] = MESSAGES[lang][original]
+        KEYBOARDS[alias] = KEYBOARDS[original]
+
+
+# Aliases
+alias_of_state('SETTINGS_REGISTER_3', 'REGISTER_3')
